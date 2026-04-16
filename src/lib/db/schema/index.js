@@ -1,0 +1,1 @@
+export { appMeta } from "./appMeta";
