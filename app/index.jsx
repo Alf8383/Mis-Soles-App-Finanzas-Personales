@@ -1,5 +1,9 @@
 import { Redirect } from "expo-router";
 
+import { useAuthFlowStore } from "../src/stores";
+
 export default function Index() {
-  return <Redirect href="/(onboarding)" />;
+  const isAuthenticated = useAuthFlowStore((state) => state.isAuthenticated);
+
+  return <Redirect href={isAuthenticated ? "/(tabs)/inicio" : "/(auth)/login"} />;
 }

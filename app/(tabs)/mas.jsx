@@ -1,15 +1,22 @@
 import { StyleSheet, Text } from "react-native";
+import { router } from "expo-router";
 
 import { AppHeader } from "../../src/components/layout/AppHeader";
 import { Screen } from "../../src/components/layout/Screen";
 import { Card, MoneyText, PrimaryButton } from "../../src/components/ui";
-import { useUiPreferencesStore } from "../../src/stores";
+import { useAuthFlowStore, useUiPreferencesStore } from "../../src/stores";
 import { useAppTheme } from "../../src/theme";
 
 export default function MasScreen() {
   const { colors, spacing, typography } = useAppTheme();
   const hideAmounts = useUiPreferencesStore((state) => state.hideAmounts);
   const toggleHideAmounts = useUiPreferencesStore((state) => state.toggleHideAmounts);
+  const signOutMock = useAuthFlowStore((state) => state.signOutMock);
+
+  function handleSignOut() {
+    signOutMock();
+    router.replace("/(auth)/login");
+  }
 
   return (
     <Screen>
@@ -29,6 +36,11 @@ export default function MasScreen() {
           label={hideAmounts ? "Mostrar montos" : "Ocultar montos"}
           onPress={toggleHideAmounts}
           style={{ marginTop: spacing.md }}
+        />
+        <PrimaryButton
+          label="Cerrar sesión (mock)"
+          onPress={handleSignOut}
+          style={{ marginTop: spacing.sm, backgroundColor: colors.gold }}
         />
       </Card>
     </Screen>
