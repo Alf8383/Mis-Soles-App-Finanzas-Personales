@@ -21,11 +21,13 @@ export default function LoginScreen() {
 
   return (
     <Screen
+      safeAreaEdges={["left", "right"]}
       contentStyle={[
         styles.container,
         {
           paddingHorizontal: spacing.xl,
-          paddingVertical: spacing.xxl,
+          paddingTop: 0,
+          paddingBottom: spacing.md,
         },
       ]}
     >
@@ -98,17 +100,20 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
+    paddingTop: 8,
   },
   logo: {
-    width: 224,
-    height: 72,
-    marginBottom: 20,
+    width: '100%',
+    height: 400,
+    marginBottom: 0,
+    marginTop: -40,
   },
   title: {
     fontWeight: "700",
-    marginBottom: 8,
+    marginBottom: 0,
+    marginTop: -100,
   },
   copy: {
     textAlign: "center",
