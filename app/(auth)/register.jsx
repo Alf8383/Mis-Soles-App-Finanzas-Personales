@@ -14,8 +14,39 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const trimmedEmail = email.trim();
+  const emailError =
+    trimmedEmail.length === 0
+      ? "Ingresa tu correo electrónico."
+      : !trimmedEmail.includes("@")
+        ? "El correo debe incluir @."
+        : "";
+  const passwordError =
+    password.length === 0
+      ? "Crea una contraseña."
+      : password.length <= 8
+        ? "La contraseña debe tener más de 8 caracteres."
+        : "";
+  const confirmPasswordError =
+    confirmPassword.length === 0
+      ? "Confirma tu contraseña."
+      : confirmPassword !== password
+        ? "Las contraseñas no coinciden."
+        : "";
+  const isFormValid = !emailError && !passwordError && !confirmPasswordError;
+  const shouldShowEmailError = submitted || trimmedEmail.length > 0;
+  const shouldShowPasswordError = submitted || password.length > 0;
+  const shouldShowConfirmPasswordError = submitted || confirmPassword.length > 0;
 
   function handleRegister() {
+    setSubmitted(true);
+
+    if (!isFormValid) {
+      return;
+    }
+
     signUpMock();
     router.replace("/(tabs)/inicio");
   }
@@ -62,6 +93,7 @@ export default function RegisterScreen() {
           onChangeText={setEmail}
           placeholder="tu@email.com"
           keyboardType="email-address"
+          errorMessage={shouldShowEmailError ? emailError : ""}
         />
         <View style={{ height: spacing.md }} />
         <TextField
@@ -70,6 +102,7 @@ export default function RegisterScreen() {
           onChangeText={setPassword}
           placeholder="Crea una contraseña"
           secureTextEntry
+          errorMessage={shouldShowPasswordError ? passwordError : ""}
         />
         <View style={{ height: spacing.md }} />
         <TextField
@@ -78,6 +111,7 @@ export default function RegisterScreen() {
           onChangeText={setConfirmPassword}
           placeholder="Repite tu contraseña"
           secureTextEntry
+          errorMessage={shouldShowConfirmPasswordError ? confirmPasswordError : ""}
         />
         <PrimaryButton
           label="Crear cuenta"

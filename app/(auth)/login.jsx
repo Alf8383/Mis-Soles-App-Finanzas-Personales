@@ -13,8 +13,32 @@ export default function LoginScreen() {
   const signInMock = useAuthFlowStore((state) => state.signInMock);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const trimmedEmail = email.trim();
+  const emailError =
+    trimmedEmail.length === 0
+      ? "Ingresa tu correo electrónico."
+      : !trimmedEmail.includes("@")
+        ? "El correo debe incluir @."
+        : "";
+  const passwordError =
+    password.length === 0
+      ? "Ingresa tu contraseña."
+      : password.length <= 8
+        ? "La contraseña debe tener más de 8 caracteres."
+        : "";
+  const isFormValid = !emailError && !passwordError;
+  const shouldShowEmailError = submitted || trimmedEmail.length > 0;
+  const shouldShowPasswordError = submitted || password.length > 0;
 
   function handleLogin() {
+    setSubmitted(true);
+
+    if (!isFormValid) {
+      return;
+    }
+
     signInMock();
     router.replace("/(tabs)/inicio");
   }
@@ -63,6 +87,7 @@ export default function LoginScreen() {
           onChangeText={setEmail}
           placeholder="tu@email.com"
           keyboardType="email-address"
+          errorMessage={shouldShowEmailError ? emailError : ""}
         />
         <View style={{ height: spacing.md }} />
         <TextField
@@ -71,6 +96,7 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           placeholder="Tu contraseña"
           secureTextEntry
+          errorMessage={shouldShowPasswordError ? passwordError : ""}
         />
         <PrimaryButton
           label="Ingresar"

@@ -10,6 +10,7 @@ export function TextField({
   secureTextEntry = false,
   keyboardType = "default",
   autoCapitalize = "none",
+  errorMessage,
 }) {
   const { colors, radii, spacing, typography } = useAppTheme();
 
@@ -42,7 +43,7 @@ export function TextField({
           styles.input,
           {
             backgroundColor: colors.surface,
-            borderColor: colors.border,
+            borderColor: errorMessage ? colors.red : colors.border,
             borderRadius: radii.md,
             color: colors.textPrimary,
             fontSize: typography.sizes.md,
@@ -51,6 +52,20 @@ export function TextField({
           },
         ]}
       />
+      {errorMessage ? (
+        <Text
+          style={[
+            styles.error,
+            {
+              color: colors.red,
+              fontSize: typography.sizes.sm,
+              marginTop: spacing.xs,
+            },
+          ]}
+        >
+          {errorMessage}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -64,5 +79,8 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
+  },
+  error: {
+    lineHeight: 18,
   },
 });
