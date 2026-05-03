@@ -8,15 +8,15 @@ Mis Soles ya no se plantea como un MVP sin cuenta ni sin nube. La direccion actu
 
 - login obligatorio
 - registro de usuario
-- backend inicial en Supabase
+- backend inicial en Firebase
 - datos financieros asociados a una cuenta autenticada
 - nube como fuente de verdad prevista
 
-Antes de conectar la autenticacion real con backend, el proyecto incorporara una fase intermedia para construir las pantallas de **login** y **registro** como experiencia visual lista para conectarse despues.
+La autenticacion real con Firebase ya esta conectada a nivel de codigo. Para probarla contra un proyecto real, falta configurar las variables locales de Firebase en `.env`.
 
 ## Stack actual y objetivo
 
-Base ya implementada:
+Base implementada:
 
 - React Native
 - Expo
@@ -25,11 +25,13 @@ Base ya implementada:
 - Expo SQLite
 - Drizzle ORM
 - date-fns
+- Firebase Authentication
+- Firebase Firestore inicializado
 
-Arquitectura prevista para la siguiente fase:
+Arquitectura cloud actual:
 
-- Supabase Auth para email y contraseña
-- Supabase Postgres como base remota principal
+- Firebase Authentication para email y contraseña
+- Firebase Firestore como base remota principal prevista para datos financieros
 - sesiones de usuario persistentes
 - datos del usuario ligados a identidad autenticada
 
@@ -38,22 +40,25 @@ La persistencia local actual pertenece a la base tecnica ya construida en EP-01.
 
 ## Estado actual
 
-El proyecto ya incluye la base del **EP-01**:
+El proyecto ya incluye:
 
-- scaffold Expo con `expo-router`
-- sistema de theme y tokens visuales
-- branding conectado para splash, onboarding y header
-- componentes base reutilizables
-- utilidades globales de moneda, fechas y periodos
-- SQLite local + Drizzle con migracion tecnica inicial
-- stores globales con Zustand para onboarding, filtros y preferencias de UI
+- **EP-01 completado**: scaffold Expo, `expo-router`, theme, branding, componentes base, utilidades, SQLite local + Drizzle y stores iniciales.
+- **EP-01.5 completado**: pantallas de login y registro, validaciones visuales, navegacion auth y guards.
+- **EP-02 completado a nivel tecnico**: Firebase JS SDK, Firebase Auth real, restauracion de sesion, logout real, errores basicos y Firestore inicializado para la siguiente etapa.
+
+Pendiente para probar EP-02 contra backend real:
+
+- crear un proyecto Firebase
+- habilitar Authentication con email y contraseña
+- crear `.env` local usando `.env.example`
+- colocar las variables `EXPO_PUBLIC_FIREBASE_*`
 
 Lo siguiente en la hoja de ruta es:
 
-1. pantallas de login y registro
-2. integracion real de auth con Supabase
-3. modelo de datos cloud
-4. onboarding autenticado y features financieras
+1. modelo de datos cloud en Firestore
+2. onboarding autenticado
+3. primeras entidades financieras remotas
+4. dashboard, movimientos, obligaciones y estadisticas
 
 ## Scripts
 
@@ -71,7 +76,7 @@ app/
   (tabs)/
   (onboarding)/
   (modals)/
-  (auth)/        # previsto para la siguiente fase visual
+  (auth)/        # pantallas de login y registro
 src/
   components/
   constants/
@@ -94,7 +99,15 @@ assets/
 npm install --legacy-peer-deps
 ```
 
-2. Inicia Expo:
+2. Configura Firebase si quieres probar login/registro reales:
+
+```bash
+cp .env.example .env
+```
+
+Completa el `.env` con los valores de tu proyecto Firebase.
+
+3. Inicia Expo:
 
 ```bash
 npm start
@@ -107,7 +120,7 @@ La arquitectura objetivo del producto se documenta asi:
 - autenticacion por email y contraseña
 - sesiones persistentes por usuario
 - datos financieros vinculados a la cuenta autenticada
-- backend inicial en Supabase
+- backend inicial en Firebase
 - nube como fuente de verdad prevista
 
 La base local actual puede mantenerse mas adelante como soporte tecnico o cache, pero no debe leerse como la estrategia final del producto.
@@ -123,9 +136,9 @@ Los assets activos viven en:
 ## Roadmap inmediato
 
 - EP-01 completado: fundaciones, shell y design system
-- EP-01.5: pantallas visuales de login y registro
-- EP-02: integracion de autenticacion real con Supabase
-- EP-03: modelo de datos cloud y onboarding autenticado
+- EP-01.5 completado: pantallas visuales de login y registro
+- EP-02 completado: integracion de autenticacion real con Firebase
+- EP-03 siguiente: modelo de datos cloud y onboarding autenticado
 - EP-04+: dashboard, movimientos, obligaciones, estadisticas y configuracion
 
 ## Referencias del proyecto

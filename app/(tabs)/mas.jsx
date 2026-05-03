@@ -11,11 +11,16 @@ export default function MasScreen() {
   const { colors, spacing, typography } = useAppTheme();
   const hideAmounts = useUiPreferencesStore((state) => state.hideAmounts);
   const toggleHideAmounts = useUiPreferencesStore((state) => state.toggleHideAmounts);
-  const signOutMock = useAuthFlowStore((state) => state.signOutMock);
+  const signOut = useAuthFlowStore((state) => state.signOut);
+  const status = useAuthFlowStore((state) => state.status);
+  const isSigningOut = status === "loading";
 
-  function handleSignOut() {
-    signOutMock();
-    router.replace("/(auth)/login");
+  async function handleSignOut() {
+    const result = await signOut();
+
+    if (!result.error) {
+      router.replace("/(auth)/login");
+    }
   }
 
   return (
@@ -38,8 +43,9 @@ export default function MasScreen() {
           style={{ marginTop: spacing.md }}
         />
         <PrimaryButton
-          label="Cerrar sesión (mock)"
+          label={isSigningOut ? "Cerrando sesion..." : "Cerrar sesion"}
           onPress={handleSignOut}
+          disabled={isSigningOut}
           style={{ marginTop: spacing.sm, backgroundColor: colors.gold }}
         />
       </Card>

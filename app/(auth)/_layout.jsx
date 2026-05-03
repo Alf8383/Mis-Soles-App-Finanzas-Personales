@@ -3,9 +3,9 @@ import { Redirect, Stack } from "expo-router";
 import { useAuthFlowStore } from "../../src/stores";
 
 export default function AuthLayout() {
-  const isAuthenticated = useAuthFlowStore((state) => state.isAuthenticated);
+  const status = useAuthFlowStore((state) => state.status);
 
-  if (isAuthenticated) {
+  if (status === "authenticated") {
     return <Redirect href="/(tabs)/inicio" />;
   }
 

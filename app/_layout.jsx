@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { runMigrations } from "../src/lib/db/migrate";
 import { AppProviders } from "../src/providers/AppProviders";
+import { useAuthFlowStore } from "../src/stores";
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -16,6 +17,7 @@ export default function RootLayout() {
     async function bootstrap() {
       try {
         await runMigrations();
+        await useAuthFlowStore.getState().bootstrapSession();
         if (mounted) {
           setReady(true);
         }
@@ -43,7 +45,7 @@ export default function RootLayout() {
           <Text style={styles.loadingCopy}>
             {error
               ? "Hubo un problema inicializando la base local."
-              : "Inicializando rutas y almacenamiento local."}
+              : "Inicializando rutas, sesion y almacenamiento local."}
           </Text>
         </View>
       ) : (

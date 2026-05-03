@@ -10,7 +10,10 @@ import { useAppTheme } from "../../src/theme";
 
 export default function LoginScreen() {
   const { colors, spacing, typography } = useAppTheme();
-  const signInMock = useAuthFlowStore((state) => state.signInMock);
+  const authError = useAuthFlowStore((state) => state.error);
+  const clearError = useAuthFlowStore((state) => state.clearError);
+  const signIn = useAuthFlowStore((state) => state.signIn);
+  const status = useAuthFlowStore((state) => state.status);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -29,18 +32,36 @@ export default function LoginScreen() {
         ? "La contraseña debe tener más de 8 caracteres."
         : "";
   const isFormValid = !emailError && !passwordError;
+  const isLoading = status === "loading";
   const shouldShowEmailError = submitted || trimmedEmail.length > 0;
   const shouldShowPasswordError = submitted || password.length > 0;
 
-  function handleLogin() {
+  function handleEmailChange(value) {
+    setEmail(value);
+    clearError();
+  }
+
+  function handlePasswordChange(value) {
+    setPassword(value);
+    clearError();
+  }
+
+  async function handleLogin() {
     setSubmitted(true);
+    clearError();
 
     if (!isFormValid) {
       return;
     }
 
-    signInMock();
-    router.replace("/(tabs)/inicio");
+    const result = await signIn({
+      email: trimmedEmail,
+      password,
+    });
+
+    if (result.user) {
+      router.replace("/(tabs)/inicio");
+    }
   }
 
   return (
@@ -84,7 +105,7 @@ export default function LoginScreen() {
         <TextField
           label="Correo electrónico"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
           placeholder="tu@email.com"
           keyboardType="email-address"
           errorMessage={shouldShowEmailError ? emailError : ""}
@@ -93,14 +114,20 @@ export default function LoginScreen() {
         <TextField
           label="Contraseña"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
           placeholder="Tu contraseña"
           secureTextEntry
           errorMessage={shouldShowPasswordError ? passwordError : ""}
         />
+        {authError ? (
+          <Text style={[styles.notice, { color: colors.red, marginTop: spacing.md }]}>
+            {authError}
+          </Text>
+        ) : null}
         <PrimaryButton
-          label="Ingresar"
+          label={isLoading ? "Ingresando..." : "Ingresar"}
           onPress={handleLogin}
+          disabled={isLoading}
           style={{ marginTop: spacing.lg }}
         />
       </Card>
@@ -144,5 +171,9 @@ const styles = StyleSheet.create({
   copy: {
     textAlign: "center",
     lineHeight: 22,
+  },
+  notice: {
+    lineHeight: 20,
+    textAlign: "center",
   },
 });

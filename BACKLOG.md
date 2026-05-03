@@ -11,7 +11,7 @@
 
 - App movil de finanzas personales para Peru con arquitectura **cloud-first** y acceso autenticado.
 - Stack actual base: React Native + Expo, `expo-router`, `zustand`, `expo-sqlite`, Drizzle ORM y `date-fns`.
-- Backend previsto: **Supabase** para autenticacion y persistencia remota.
+- Backend previsto: **Firebase** para autenticacion y persistencia remota.
 - Metodo inicial de acceso: **email + contraseña**.
 - Navegacion principal con 5 tabs: Inicio, Movimientos, Estadisticas, Obligaciones y Mas.
 - FAB central sobre la tab bar, visible en Inicio y Movimientos, que abre un bottom sheet de alta rapida.
@@ -27,7 +27,7 @@
 ## Supuestos para este backlog
 
 - El producto se posiciona como **cloud-first** con login obligatorio.
-- Supabase es el backend inicial planeado para auth y datos remotos.
+- Firebase es el backend inicial planeado para auth y datos remotos.
 - Las pantallas de auth entran primero como fase UI y navegacion, antes de integrar la logica real de autenticacion.
 - La persistencia local construida en EP-01 se considera infraestructura de base, no la estrategia principal de largo plazo.
 - El onboarding seguira existiendo, pero quedara **despues** del acceso autenticado.
@@ -75,16 +75,16 @@ Estado: completada
 | MS-012 | P0 | M | Ajustar ruta inicial y guards visuales | El entrypoint contempla un estado no autenticado mock y redirige al grupo auth por ahora |
 | MS-013 | P0 | S | Reutilizar componentes base del EP-01 en auth | Las pantallas usan `Screen`, `Card`, botones y estilos del sistema ya creado |
 
-### EP-02. Integracion cloud y autenticacion real
+### EP-02. Integracion Firebase y autenticacion real
 
 | ID | Pri | Talla | Item | Listo cuando |
 | --- | --- | --- | --- | --- |
-| MS-014 | P0 | M | Integrar cliente base de Supabase en la app | Existe configuracion base y cliente compartido para auth y datos |
-| MS-015 | P0 | M | Implementar registro real con email y contraseña | El usuario puede crear cuenta contra Supabase Auth |
-| MS-016 | P0 | M | Implementar login real con email y contraseña | El usuario puede iniciar sesion y recibir estado autenticado valido |
-| MS-017 | P0 | M | Persistir y restaurar sesion | La app recuerda sesion y resuelve bootstrap autenticado vs no autenticado |
-| MS-018 | P1 | S | Manejar logout y errores basicos de auth | La UX contempla credenciales invalidas, carga y cierre de sesion |
-| MS-019 | P1 | S | Preparar estructura para futuras pantallas de recuperacion | Queda prevista la extension sin bloquear el MVP |
+| MS-014 | P0 | M | Integrar cliente base de Firebase en la app | Existe configuracion base y cliente compartido para Firebase Auth y datos remotos |
+| MS-015 | P0 | M | Implementar registro real con email y contraseña | El usuario puede crear cuenta contra Firebase Authentication |
+| MS-016 | P0 | M | Implementar login real con email y contraseña | El usuario puede iniciar sesion y recibir estado autenticado valido desde Firebase |
+| MS-017 | P0 | M | Persistir y restaurar sesion Firebase | La app recuerda sesion y resuelve bootstrap autenticado vs no autenticado |
+| MS-018 | P1 | S | Manejar logout y errores basicos de Firebase Auth | La UX contempla credenciales invalidas, carga y cierre de sesion |
+| MS-019 | P1 | S | Preparar estructura para futuras pantallas de recuperacion | Queda prevista la extension con Firebase Auth sin bloquear el MVP |
 
 ### EP-03. Modelo de datos cloud y onboarding autenticado
 
@@ -163,7 +163,7 @@ Estado: completada
 
 - Si no se separa bien la fase de auth visual de la auth real, se puede mezclar UI mock con contratos de backend inestables.
 - El cambio de local-first a cloud-first obliga a revisar rutas, bootstrap y manejo de estados de carga.
-- Si el modelo multiusuario no se define temprano, luego sera costoso adaptar cuentas, movimientos y obligaciones.
+- Si el modelo multiusuario en Firebase/Firestore no se define temprano, luego sera costoso adaptar cuentas, movimientos y obligaciones.
 - La experiencia entre estado no autenticado, autenticado y onboarding debe quedar muy clara para evitar loops de navegacion.
 
 ## Definicion de hecho para historias del MVP

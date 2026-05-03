@@ -10,7 +10,10 @@ import { useAppTheme } from "../../src/theme";
 
 export default function RegisterScreen() {
   const { colors, spacing, typography } = useAppTheme();
-  const signUpMock = useAuthFlowStore((state) => state.signUpMock);
+  const authError = useAuthFlowStore((state) => state.error);
+  const clearError = useAuthFlowStore((state) => state.clearError);
+  const signUp = useAuthFlowStore((state) => state.signUp);
+  const status = useAuthFlowStore((state) => state.status);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -36,19 +39,42 @@ export default function RegisterScreen() {
         ? "Las contraseñas no coinciden."
         : "";
   const isFormValid = !emailError && !passwordError && !confirmPasswordError;
+  const isLoading = status === "loading";
   const shouldShowEmailError = submitted || trimmedEmail.length > 0;
   const shouldShowPasswordError = submitted || password.length > 0;
   const shouldShowConfirmPasswordError = submitted || confirmPassword.length > 0;
 
-  function handleRegister() {
+  function handleEmailChange(value) {
+    setEmail(value);
+    clearError();
+  }
+
+  function handlePasswordChange(value) {
+    setPassword(value);
+    clearError();
+  }
+
+  function handleConfirmPasswordChange(value) {
+    setConfirmPassword(value);
+    clearError();
+  }
+
+  async function handleRegister() {
     setSubmitted(true);
+    clearError();
 
     if (!isFormValid) {
       return;
     }
 
-    signUpMock();
-    router.replace("/(tabs)/inicio");
+    const result = await signUp({
+      email: trimmedEmail,
+      password,
+    });
+
+    if (result.user) {
+      router.replace("/(tabs)/inicio");
+    }
   }
 
   return (
@@ -90,7 +116,7 @@ export default function RegisterScreen() {
         <TextField
           label="Correo electrónico"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
           placeholder="tu@email.com"
           keyboardType="email-address"
           errorMessage={shouldShowEmailError ? emailError : ""}
@@ -99,7 +125,7 @@ export default function RegisterScreen() {
         <TextField
           label="Contraseña"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
           placeholder="Crea una contraseña"
           secureTextEntry
           errorMessage={shouldShowPasswordError ? passwordError : ""}
@@ -108,14 +134,20 @@ export default function RegisterScreen() {
         <TextField
           label="Confirmar contraseña"
           value={confirmPassword}
-          onChangeText={setConfirmPassword}
+          onChangeText={handleConfirmPasswordChange}
           placeholder="Repite tu contraseña"
           secureTextEntry
           errorMessage={shouldShowConfirmPasswordError ? confirmPasswordError : ""}
         />
+        {authError ? (
+          <Text style={[styles.notice, { color: colors.red, marginTop: spacing.md }]}>
+            {authError}
+          </Text>
+        ) : null}
         <PrimaryButton
-          label="Crear cuenta"
+          label={isLoading ? "Creando cuenta..." : "Crear cuenta"}
           onPress={handleRegister}
+          disabled={isLoading}
           style={{ marginTop: spacing.lg }}
         />
       </Card>
@@ -156,5 +188,9 @@ const styles = StyleSheet.create({
   copy: {
     textAlign: "center",
     lineHeight: 22,
+  },
+  notice: {
+    lineHeight: 20,
+    textAlign: "center",
   },
 });
