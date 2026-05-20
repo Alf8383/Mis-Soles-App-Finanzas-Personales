@@ -5,12 +5,20 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-nati
 
 import { Screen } from "../../src/components/layout/Screen";
 import { Card, Chip, EmptyState, PrimaryButton, TextField } from "../../src/components/ui";
-import { CategoryKind, MovementType } from "../../src/lib/domain/enums";
+import {
+  CategoryKind,
+  CurrencyCode,
+  MovementType,
+  ObligationType,
+  ScheduledPaymentFrequency,
+} from "../../src/lib/domain/enums";
 import {
   useAccountsStore,
   useAuthFlowStore,
   useDashboardStore,
   useMovementsStore,
+  useObligationsStore,
+  useScheduledPaymentsStore,
 } from "../../src/stores";
 import { useAppTheme } from "../../src/theme";
 
@@ -29,6 +37,17 @@ const FORM_COPY = {
   },
 };
 
+const AUX_COPY = {
+  debt: {
+    title: "Nueva deuda",
+    subtitle: "Registra préstamos informales sin mover saldos hasta que hagas un abono.",
+  },
+  fixed: {
+    title: "Nuevo pago fijo",
+    subtitle: "Programa un gasto recurrente y márcalo como pagado cuando corresponda.",
+  },
+};
+
 export default function NuevoMovimientoModal() {
   const { colors, spacing, typography } = useAppTheme();
   const { type } = useLocalSearchParams();
@@ -43,18 +62,35 @@ export default function NuevoMovimientoModal() {
   const movementsStatus = useMovementsStore((state) => state.status);
   const createMovement = useMovementsStore((state) => state.createMovement);
   const loadMovements = useMovementsStore((state) => state.loadMovements);
+  const createObligation = useObligationsStore((state) => state.createObligation);
+  const obligationError = useObligationsStore((state) => state.error);
+  const obligationsStatus = useObligationsStore((state) => state.status);
+  const createScheduledPayment = useScheduledPaymentsStore((state) => state.createScheduledPayment);
+  const scheduledPaymentError = useScheduledPaymentsStore((state) => state.error);
+  const scheduledPaymentStatus = useScheduledPaymentsStore((state) => state.status);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [accountId, setAccountId] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [currency, setCurrency] = useState(CurrencyCode.PEN);
+  const [debtDirection, setDebtDirection] = useState(ObligationType.DEBT_I_OWE);
+  const [dueDate, setDueDate] = useState("");
   const [fromAccountId, setFromAccountId] = useState("");
+  const [frequency, setFrequency] = useState(ScheduledPaymentFrequency.MONTHLY);
+  const [personName, setPersonName] = useState("");
+  const [fixedName, setFixedName] = useState("");
+  const [nextDueDate, setNextDueDate] = useState("");
   const [toAccountId, setToAccountId] = useState("");
   const [exchangeRate, setExchangeRate] = useState("");
   const [fee, setFee] = useState("");
   const [formError, setFormError] = useState("");
-  const isSaving = movementsStatus === "saving";
+  const isAuxType = movementType === "debt" || movementType === "fixed";
+  const isSaving =
+    movementsStatus === "saving" ||
+    obligationsStatus === "saving" ||
+    scheduledPaymentStatus === "saving";
   const isLoading = movementsStatus === "loading" || accountsStatus === "loading";
-  const copy = FORM_COPY[movementType];
+  const copy = FORM_COPY[movementType] || AUX_COPY[movementType];
 
   useEffect(() => {
     if (user?.uid) {
@@ -93,6 +129,16 @@ export default function NuevoMovimientoModal() {
 
     if (!user?.uid) {
       setFormError("Inicia sesión para guardar movimientos.");
+      return;
+    }
+
+    if (movementType === "debt") {
+      await handleDebtSubmit();
+      return;
+    }
+
+    if (movementType === "fixed") {
+      await handleFixedSubmit();
       return;
     }
 
@@ -142,20 +188,56 @@ export default function NuevoMovimientoModal() {
     }
   }
 
-  if (!copy) {
-    return (
-      <Screen>
-        <Card style={{ marginTop: spacing.lg }}>
-          <EmptyState
-            icon="construct-outline"
-            title="Este flujo llega en EP-06"
-            description="Deudas y pagos fijos ya tienen entrada visual, pero su persistencia real se implementará en la siguiente épica."
-            actionLabel="Volver"
-            onAction={() => router.back()}
-          />
-        </Card>
-      </Screen>
-    );
+  async function handleDebtSubmit() {
+    const validationError = validateDebtForm({ amount, personName });
+
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
+    const result = await createObligation(user.uid, {
+      amount,
+      currency,
+      dueDate,
+      note: description,
+      personName,
+      type: debtDirection,
+    });
+
+    if (!result.error) {
+      router.back();
+    }
+  }
+
+  async function handleFixedSubmit() {
+    const selectedFixedAccount = accounts.find((account) => account.id === accountId);
+    const validationError = validateFixedForm({
+      accountId,
+      amount,
+      categoryId,
+      name: fixedName,
+      nextDueDate,
+    });
+
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
+    const result = await createScheduledPayment(user.uid, {
+      accountId,
+      amount,
+      categoryId,
+      currency: selectedFixedAccount?.currency || CurrencyCode.PEN,
+      frequency,
+      name: fixedName,
+      nextDueDate,
+    });
+
+    if (!result.error) {
+      router.back();
+    }
   }
 
   return (
@@ -180,19 +262,131 @@ export default function NuevoMovimientoModal() {
       {isLoading ? <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.lg }} /> : null}
 
       <Card style={{ marginTop: spacing.lg }}>
-        <TextField
-          label="Monto"
-          value={amount}
-          onChangeText={setAmount}
-          placeholder="0.00"
-          keyboardType="decimal-pad"
-        />
-        <TextField
-          label="Descripción"
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Ej. Mercado, sueldo, transferencia"
-        />
+        {movementType === "debt" ? (
+          <>
+            <TextField
+              label="Persona"
+              value={personName}
+              onChangeText={setPersonName}
+              placeholder="Ej. Ana, Carlos, mamá"
+            />
+            <TextField
+              label="Monto"
+              value={amount}
+              onChangeText={setAmount}
+              placeholder="0.00"
+              keyboardType="decimal-pad"
+            />
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
+              Dirección
+            </Text>
+            <View style={styles.chipRow}>
+              <Chip
+                label="Yo debo"
+                active={debtDirection === ObligationType.DEBT_I_OWE}
+                onPress={() => setDebtDirection(ObligationType.DEBT_I_OWE)}
+              />
+              <Chip
+                label="Me deben"
+                active={debtDirection === ObligationType.DEBT_OWED_TO_ME}
+                onPress={() => setDebtDirection(ObligationType.DEBT_OWED_TO_ME)}
+              />
+            </View>
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
+              Moneda
+            </Text>
+            <View style={styles.chipRow}>
+              <Chip label="PEN" active={currency === CurrencyCode.PEN} onPress={() => setCurrency(CurrencyCode.PEN)} />
+              <Chip label="USD" active={currency === CurrencyCode.USD} onPress={() => setCurrency(CurrencyCode.USD)} />
+            </View>
+            <TextField
+              label="Vence el (opcional)"
+              value={dueDate}
+              onChangeText={setDueDate}
+              placeholder="YYYY-MM-DD"
+            />
+            <TextField
+              label="Nota"
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Ej. Préstamo para emergencia"
+            />
+          </>
+        ) : null}
+
+        {movementType === "fixed" ? (
+          <>
+            <TextField
+              label="Nombre"
+              value={fixedName}
+              onChangeText={setFixedName}
+              placeholder="Ej. Internet, alquiler, gimnasio"
+            />
+            <TextField
+              label="Monto"
+              value={amount}
+              onChangeText={setAmount}
+              placeholder="0.00"
+              keyboardType="decimal-pad"
+            />
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
+              Cuenta
+            </Text>
+            <AccountPicker accounts={accounts} selectedId={accountId} onSelect={setAccountId} />
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
+              Categoría
+            </Text>
+            <View style={styles.chipRow}>
+              {filteredCategories.map((category) => (
+                <Chip
+                  key={category.id}
+                  label={category.name}
+                  active={categoryId === category.id}
+                  onPress={() => setCategoryId(category.id)}
+                />
+              ))}
+            </View>
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
+              Frecuencia
+            </Text>
+            <View style={styles.chipRow}>
+              <Chip
+                label="Mensual"
+                active={frequency === ScheduledPaymentFrequency.MONTHLY}
+                onPress={() => setFrequency(ScheduledPaymentFrequency.MONTHLY)}
+              />
+              <Chip
+                label="Semanal"
+                active={frequency === ScheduledPaymentFrequency.WEEKLY}
+                onPress={() => setFrequency(ScheduledPaymentFrequency.WEEKLY)}
+              />
+            </View>
+            <TextField
+              label="Próximo vencimiento"
+              value={nextDueDate}
+              onChangeText={setNextDueDate}
+              placeholder="YYYY-MM-DD"
+            />
+          </>
+        ) : null}
+
+        {!isAuxType ? (
+          <>
+            <TextField
+              label="Monto"
+              value={amount}
+              onChangeText={setAmount}
+              placeholder="0.00"
+              keyboardType="decimal-pad"
+            />
+            <TextField
+              label="Descripción"
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Ej. Mercado, sueldo, transferencia"
+            />
+          </>
+        ) : null}
 
         {movementType === MovementType.TRANSFER ? (
           <>
@@ -221,7 +415,7 @@ export default function NuevoMovimientoModal() {
               keyboardType="decimal-pad"
             />
           </>
-        ) : (
+        ) : !isAuxType ? (
           <>
             <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
               Cuenta
@@ -241,16 +435,16 @@ export default function NuevoMovimientoModal() {
               ))}
             </View>
           </>
-        )}
+        ) : null}
 
-        {formError || movementError ? (
+        {formError || movementError || obligationError || scheduledPaymentError ? (
           <Text style={[styles.error, { color: colors.red, marginTop: spacing.md }]}>
-            {formError || movementError}
+            {formError || movementError || obligationError || scheduledPaymentError}
           </Text>
         ) : null}
 
         <PrimaryButton
-          label={isSaving ? "Guardando..." : "Guardar movimiento"}
+          label={isSaving ? "Guardando..." : getSubmitLabel(movementType)}
           onPress={handleSubmit}
           disabled={isSaving}
           style={{ marginTop: spacing.md }}
@@ -312,6 +506,48 @@ function validateForm(values) {
   }
 
   return "";
+}
+
+function validateDebtForm(values) {
+  if (!values.personName.trim()) {
+    return "Ingresa el nombre de la persona.";
+  }
+
+  if (Number(values.amount) <= 0) {
+    return "Ingresa un monto mayor a 0.";
+  }
+
+  return "";
+}
+
+function validateFixedForm(values) {
+  if (!values.name.trim()) {
+    return "Ingresa el nombre del pago fijo.";
+  }
+
+  if (Number(values.amount) <= 0) {
+    return "Ingresa un monto mayor a 0.";
+  }
+
+  if (!values.accountId) {
+    return "Selecciona una cuenta.";
+  }
+
+  if (!values.categoryId) {
+    return "Selecciona una categoría.";
+  }
+
+  if (!values.nextDueDate.trim()) {
+    return "Ingresa el próximo vencimiento.";
+  }
+
+  return "";
+}
+
+function getSubmitLabel(type) {
+  if (type === "debt") return "Guardar deuda";
+  if (type === "fixed") return "Guardar pago fijo";
+  return "Guardar movimiento";
 }
 
 const styles = StyleSheet.create({

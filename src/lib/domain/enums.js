@@ -28,6 +28,11 @@ export const ObligationType = {
   FIXED_PAYMENT: "fixed_payment",
 };
 
+export const ScheduledPaymentFrequency = {
+  WEEKLY: "weekly",
+  MONTHLY: "monthly",
+};
+
 export const BudgetPeriod = {
   WEEKLY: "weekly",
   MONTHLY: "monthly",

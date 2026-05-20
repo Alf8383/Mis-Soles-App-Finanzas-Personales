@@ -1,4 +1,4 @@
-import { AccountType, CategoryKind, CurrencyCode } from "./enums";
+import { AccountType, BudgetPeriod, CategoryKind, CurrencyCode } from "./enums";
 
 export const DEFAULT_PRIMARY_CURRENCY = CurrencyCode.PEN;
 export const DEFAULT_EXCHANGE_RATE = 3.75;
@@ -52,3 +52,6 @@ export const DEFAULT_CATEGORIES = [
     name: "Ingresos",
   },
 ];
+
+export const DEFAULT_BUDGET_ALERT_THRESHOLD = 80;
+export const DEFAULT_BUDGET_PERIOD = BudgetPeriod.MONTHLY;

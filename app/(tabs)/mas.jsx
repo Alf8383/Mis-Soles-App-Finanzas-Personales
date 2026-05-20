@@ -8,9 +8,13 @@ import { Card, ConfirmDialog, MoneyText, PrimaryButton } from "../../src/compone
 import {
   useAccountsStore,
   useAuthFlowStore,
+  useBudgetsStore,
   useDashboardStore,
   useMovementsStore,
+  useObligationsStore,
   useOnboardingStore,
+  useScheduledPaymentsStore,
+  useStatisticsStore,
   useUiPreferencesStore,
 } from "../../src/stores";
 import { useAppTheme } from "../../src/theme";
@@ -23,8 +27,12 @@ export default function MasScreen() {
   const status = useAuthFlowStore((state) => state.status);
   const resetOnboarding = useOnboardingStore((state) => state.reset);
   const resetAccounts = useAccountsStore((state) => state.reset);
+  const resetBudgets = useBudgetsStore((state) => state.reset);
   const resetMovements = useMovementsStore((state) => state.reset);
   const resetDashboard = useDashboardStore((state) => state.reset);
+  const resetObligations = useObligationsStore((state) => state.reset);
+  const resetScheduledPayments = useScheduledPaymentsStore((state) => state.reset);
+  const resetStatistics = useStatisticsStore((state) => state.reset);
   const [confirmSignOutVisible, setConfirmSignOutVisible] = useState(false);
   const isSigningOut = status === "loading";
 
@@ -34,9 +42,13 @@ export default function MasScreen() {
     if (!result.error) {
       setConfirmSignOutVisible(false);
       resetAccounts();
+      resetBudgets();
       resetDashboard();
       resetMovements();
+      resetObligations();
       resetOnboarding();
+      resetScheduledPayments();
+      resetStatistics();
       router.replace("/(auth)/login");
     }
   }

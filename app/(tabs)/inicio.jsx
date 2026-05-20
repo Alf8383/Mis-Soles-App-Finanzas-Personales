@@ -13,7 +13,7 @@ import {
   QuickActionSheet,
 } from "../../src/components/ui";
 import { fromMinorUnits } from "../../src/lib/domain/money";
-import { getMovementDateLabel, getThisMonthRange } from "../../src/lib/utils";
+import { formatExchangeRateDate, getMovementDateLabel, getThisMonthRange, normalizeDate } from "../../src/lib/utils";
 import { useAuthFlowStore, useDashboardStore } from "../../src/stores";
 import { useAppTheme } from "../../src/theme";
 
@@ -128,11 +128,25 @@ export default function InicioScreen() {
           >
             Próximas obligaciones
           </Text>
-          <EmptyState
-            icon="calendar-outline"
-            title="Todavía no hay obligaciones"
-            description="Deudas y pagos fijos se conectarán en EP-06."
-          />
+          {dashboard.upcomingObligations.length === 0 ? (
+            <EmptyState
+              icon="calendar-outline"
+              title="Todavía no hay obligaciones"
+              description="Registra deudas o pagos fijos para ver próximos vencimientos."
+            />
+          ) : (
+            dashboard.upcomingObligations.map((item) => (
+              <View key={item.id} style={[styles.itemRow, { marginTop: spacing.md }]}>
+                <View>
+                  <Text style={[styles.itemLabel, { color: colors.textPrimary }]}>{item.label}</Text>
+                  <Text style={[styles.itemMeta, { color: colors.textSecondary }]}>
+                    {item.source === "debt" ? "Deuda" : "Pago fijo"} · {formatObligationDate(item.date)}
+                  </Text>
+                </View>
+                <MoneyText amount={fromMinorUnits(item.amountMinor)} currency={item.currency || "PEN"} />
+              </View>
+            ))
+          )}
         </Card>
 
         <Card style={{ marginTop: spacing.md }}>
@@ -186,6 +200,11 @@ function getSignedMovementAmount(movement) {
 
   if (movement.type === "expense" || movement.type === "fee") return -amount;
   return amount;
+}
+
+function formatObligationDate(value) {
+  if (!value) return "Sin vencimiento";
+  return formatExchangeRateDate(normalizeDate(value));
 }
 
 const styles = StyleSheet.create({

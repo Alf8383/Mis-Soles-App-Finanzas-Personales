@@ -27,6 +27,7 @@
 - **EP-03 completado a nivel tecnico**: modelo Firestore por usuario, onboarding autenticado y seed inicial.
 - **EP-04 completado a nivel tecnico**: navegacion autenticada, tabs custom, FAB central, bottom sheet y empty states.
 - **EP-05 completado a nivel tecnico**: cuentas, movimientos, dashboard e impacto contable remoto en Firestore.
+- **EP-06 completado a nivel tecnico**: obligaciones, pagos fijos, presupuestos y estadisticas reales en Firestore.
 
 ## Supuestos para este backlog
 
@@ -126,6 +127,8 @@ Estado: completada a nivel tecnico
 | MS-035 | P1 | S | Añadir vista de cuentas estilo Stitch | Tarjeta principal, cuentas secundarias y total consolidado con tipo de cambio visible |
 
 ### EP-06. Obligaciones, presupuestos y estadisticas
+
+Estado: completada a nivel tecnico
 
 | ID | Pri | Talla | Item | Listo cuando |
 | --- | --- | --- | --- | --- |

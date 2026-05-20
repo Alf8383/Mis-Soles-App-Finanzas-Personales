@@ -3,6 +3,8 @@ import { fromMinorUnits } from "../../domain/money";
 import { MovementType } from "../../domain/enums";
 import { listAccounts } from "./accounts-repository";
 import { listMovements } from "./movements-repository";
+import { listObligations } from "./obligations-repository";
+import { listScheduledPayments } from "./scheduled-payments-repository";
 
 function getMovementMillis(movement) {
   const date = movement.date?.toDate ? movement.date.toDate() : new Date(movement.date);
@@ -10,9 +12,11 @@ function getMovementMillis(movement) {
 }
 
 export async function getDashboardSummary(uid) {
-  const [accounts, movements] = await Promise.all([
+  const [accounts, movements, obligations, scheduledPayments] = await Promise.all([
     listAccounts(uid),
     listMovements(uid, { max: 100 }),
+    listObligations(uid),
+    listScheduledPayments(uid),
   ]);
   const { start, end } = getThisMonthRange();
   const startMillis = start.getTime();
@@ -41,7 +45,41 @@ export async function getDashboardSummary(uid) {
     latestMovements: movements.slice(0, 5),
     monthlyExpense: fromMinorUnits(monthlyExpenseMinor),
     monthlyIncome: fromMinorUnits(monthlyIncomeMinor),
+    upcomingObligations: getUpcomingObligations(obligations, scheduledPayments),
     savingsRate,
     totalBalance: fromMinorUnits(totalBalanceMinor),
   };
+}
+
+function getUpcomingObligations(obligations, scheduledPayments) {
+  return [
+    ...obligations
+      .filter((obligation) => obligation.status === "active")
+      .map((obligation) => ({
+        amountMinor: obligation.pendingAmountMinor,
+        currency: obligation.currency,
+        date: obligation.dueDate,
+        id: `obligation-${obligation.id}`,
+        label: obligation.personName,
+        source: "debt",
+      })),
+    ...scheduledPayments
+      .filter((payment) => payment.status === "active")
+      .map((payment) => ({
+        amountMinor: payment.amountMinor,
+        currency: payment.currency,
+        date: payment.nextDueDate,
+        id: `scheduled-${payment.id}`,
+        label: payment.name,
+        source: "fixed",
+      })),
+  ]
+    .sort((left, right) => getDateMillis(left.date) - getDateMillis(right.date))
+    .slice(0, 3);
+}
+
+function getDateMillis(value) {
+  if (!value) return Number.MAX_SAFE_INTEGER;
+  if (value?.toDate) return value.toDate().getTime();
+  return new Date(value).getTime();
 }

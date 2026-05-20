@@ -15,6 +15,7 @@ export const useDashboardStore = create((set) => ({
   savingsRate: 0,
   status: "idle",
   totalBalance: 0,
+  upcomingObligations: [],
 
   loadDashboard: async (uid) => {
     if (!uid) return;
@@ -39,5 +40,6 @@ export const useDashboardStore = create((set) => ({
       savingsRate: 0,
       status: "idle",
       totalBalance: 0,
+      upcomingObligations: [],
     }),
 }));

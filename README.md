@@ -48,6 +48,7 @@ El proyecto ya incluye:
 - **EP-03 completado a nivel tecnico**: modelo Firestore por usuario, reglas locales, onboarding autenticado, cuenta inicial y categorias base.
 - **EP-04 completado a nivel tecnico**: shell autenticado con tabs custom, FAB central, bottom sheet, modal de alta rapida y empty states.
 - **EP-05 completado a nivel tecnico**: dashboard real desde Firestore, CRUD de cuentas, formulario de movimientos, transferencias e impacto contable remoto.
+- **EP-06 completado a nivel tecnico**: obligaciones, pagos fijos, presupuestos y estadisticas reales desde Firestore.
 
 Pendiente para probar contra backend real:
 
@@ -58,10 +59,9 @@ Pendiente para probar contra backend real:
 
 Lo siguiente en la hoja de ruta es:
 
-1. obligaciones, presupuestos y estadisticas
-2. configuracion avanzada
-3. gestion de categorias
-4. QA funcional y visual del MVP cloud-first
+1. configuracion avanzada
+2. gestion de categorias
+3. QA funcional y visual del MVP cloud-first
 
 ## Scripts
 
@@ -142,6 +142,9 @@ users/{uid}
   settings/app
   accounts/{accountId}
   movements/{movementId}
+  obligations/{obligationId}
+  scheduledPayments/{scheduledPaymentId}
+  budgets/{budgetId}
   categories/{categoryId}
   onboarding/state
 ```
@@ -166,7 +169,8 @@ Los assets activos viven en:
 - EP-03 completado: modelo de datos cloud y onboarding autenticado
 - EP-04 completado: navegacion principal y experiencia base autenticada
 - EP-05 completado: cuentas, movimientos, transferencias y dashboard
-- EP-06 siguiente: obligaciones, presupuestos y estadisticas
+- EP-06 completado: obligaciones, presupuestos y estadisticas
+- EP-07 siguiente: configuracion y pulido final
 
 ## Referencias del proyecto
 
