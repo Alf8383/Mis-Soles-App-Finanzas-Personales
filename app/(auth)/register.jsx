@@ -5,7 +5,7 @@ import { useState } from "react";
 import { branding } from "../../src/constants/branding";
 import { Screen } from "../../src/components/layout/Screen";
 import { Card, PrimaryButton, TextField } from "../../src/components/ui";
-import { useAuthFlowStore } from "../../src/stores";
+import { useAuthFlowStore, useOnboardingStore } from "../../src/stores";
 import { useAppTheme } from "../../src/theme";
 
 export default function RegisterScreen() {
@@ -14,6 +14,7 @@ export default function RegisterScreen() {
   const clearError = useAuthFlowStore((state) => state.clearError);
   const signUp = useAuthFlowStore((state) => state.signUp);
   const status = useAuthFlowStore((state) => state.status);
+  const loadOnboardingState = useOnboardingStore((state) => state.loadOnboardingState);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -73,7 +74,8 @@ export default function RegisterScreen() {
     });
 
     if (result.user) {
-      router.replace("/(tabs)/inicio");
+      await loadOnboardingState(result.user.uid);
+      router.replace("/(onboarding)");
     }
   }
 

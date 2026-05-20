@@ -22,7 +22,11 @@
 ## Estado del backlog
 
 - **EP-01 completado**: fundacion tecnica, theme, branding, shell base, utilidades, base local tecnica y stores iniciales.
-- Antes de la integracion real con nube, se agregara una fase intermedia para construir las pantallas de **login** y **registro** sin logica backend aun.
+- **EP-01.5 completado**: pantallas de login y registro con flujo auth visual.
+- **EP-02 completado**: Firebase Auth real y Firestore inicializado.
+- **EP-03 completado a nivel tecnico**: modelo Firestore por usuario, onboarding autenticado y seed inicial.
+- **EP-04 completado a nivel tecnico**: navegacion autenticada, tabs custom, FAB central, bottom sheet y empty states.
+- **EP-05 completado a nivel tecnico**: cuentas, movimientos, dashboard e impacto contable remoto en Firestore.
 
 ## Supuestos para este backlog
 
@@ -88,6 +92,8 @@ Estado: completada
 
 ### EP-03. Modelo de datos cloud y onboarding autenticado
 
+Estado: completada a nivel tecnico
+
 | ID | Pri | Talla | Item | Listo cuando |
 | --- | --- | --- | --- | --- |
 | MS-020 | P0 | L | Diseñar modelo de datos remoto del MVP | Quedan definidas entidades financieras ligadas al usuario autenticado |
@@ -106,6 +112,8 @@ Estado: completada
 | MS-028 | P1 | S | Adaptar safe areas, small screens y scroll containers | La UI se mantiene estable en dispositivos compactos |
 
 ### EP-05. Cuentas, movimientos y dashboard
+
+Estado: completada a nivel tecnico
 
 | ID | Pri | Talla | Item | Listo cuando |
 | --- | --- | --- | --- | --- |
@@ -158,6 +166,7 @@ Estado: completada
 - Sesion persistente.
 - Onboarding autenticado.
 - Primera cuenta creada y datos basicos remotos.
+- Seed inicial de perfil, settings, cuenta y categorias base en Firestore.
 
 ## Riesgos a vigilar desde el inicio
 

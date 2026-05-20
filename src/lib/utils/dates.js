@@ -5,6 +5,10 @@ export function normalizeDate(input) {
     return new Date();
   }
 
+  if (input?.toDate) {
+    return input.toDate();
+  }
+
   return input instanceof Date ? input : parseISO(String(input));
 }
 

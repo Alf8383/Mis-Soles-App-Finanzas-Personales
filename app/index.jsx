@@ -1,14 +1,16 @@
 import { Redirect } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-import { useAuthFlowStore } from "../src/stores";
+import { useAuthFlowStore, useOnboardingStore } from "../src/stores";
 import { useAppTheme } from "../src/theme";
 
 export default function Index() {
   const { colors } = useAppTheme();
-  const status = useAuthFlowStore((state) => state.status);
+  const authStatus = useAuthFlowStore((state) => state.status);
+  const isOnboardingCompleted = useOnboardingStore((state) => state.isCompleted);
+  const onboardingStatus = useOnboardingStore((state) => state.status);
 
-  if (status === "loading") {
+  if (authStatus === "loading" || onboardingStatus === "loading") {
     return (
       <View style={[styles.loadingState, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -16,7 +18,11 @@ export default function Index() {
     );
   }
 
-  return <Redirect href={status === "authenticated" ? "/(tabs)/inicio" : "/(auth)/login"} />;
+  if (authStatus !== "authenticated") {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  return <Redirect href={isOnboardingCompleted ? "/(tabs)/inicio" : "/(onboarding)"} />;
 }
 
 const styles = StyleSheet.create({

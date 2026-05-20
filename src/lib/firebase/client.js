@@ -3,6 +3,7 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, getReactNativePersistence, initializeAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+const firebaseDatabaseId = process.env.EXPO_PUBLIC_FIREBASE_DATABASE_ID;
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -40,4 +41,8 @@ function createFirebaseAuth(app) {
 
 export const firebaseApp = createFirebaseApp();
 export const auth = createFirebaseAuth(firebaseApp);
-export const db = firebaseApp ? getFirestore(firebaseApp) : null;
+export const db = firebaseApp
+  ? firebaseDatabaseId
+    ? getFirestore(firebaseApp, firebaseDatabaseId)
+    : getFirestore(firebaseApp)
+  : null;

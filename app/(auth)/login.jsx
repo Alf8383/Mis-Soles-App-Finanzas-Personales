@@ -5,7 +5,7 @@ import { useState } from "react";
 import { branding } from "../../src/constants/branding";
 import { Screen } from "../../src/components/layout/Screen";
 import { Card, PrimaryButton, TextField } from "../../src/components/ui";
-import { useAuthFlowStore } from "../../src/stores";
+import { useAuthFlowStore, useOnboardingStore } from "../../src/stores";
 import { useAppTheme } from "../../src/theme";
 
 export default function LoginScreen() {
@@ -14,6 +14,8 @@ export default function LoginScreen() {
   const clearError = useAuthFlowStore((state) => state.clearError);
   const signIn = useAuthFlowStore((state) => state.signIn);
   const status = useAuthFlowStore((state) => state.status);
+  const isOnboardingCompleted = useOnboardingStore((state) => state.isCompleted);
+  const loadOnboardingState = useOnboardingStore((state) => state.loadOnboardingState);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -60,7 +62,8 @@ export default function LoginScreen() {
     });
 
     if (result.user) {
-      router.replace("/(tabs)/inicio");
+      const onboarding = await loadOnboardingState(result.user.uid);
+      router.replace(onboarding.completed || isOnboardingCompleted ? "/(tabs)/inicio" : "/(onboarding)");
     }
   }
 

@@ -45,20 +45,23 @@ El proyecto ya incluye:
 - **EP-01 completado**: scaffold Expo, `expo-router`, theme, branding, componentes base, utilidades, SQLite local + Drizzle y stores iniciales.
 - **EP-01.5 completado**: pantallas de login y registro, validaciones visuales, navegacion auth y guards.
 - **EP-02 completado a nivel tecnico**: Firebase JS SDK, Firebase Auth real, restauracion de sesion, logout real, errores basicos y Firestore inicializado para la siguiente etapa.
+- **EP-03 completado a nivel tecnico**: modelo Firestore por usuario, reglas locales, onboarding autenticado, cuenta inicial y categorias base.
+- **EP-04 completado a nivel tecnico**: shell autenticado con tabs custom, FAB central, bottom sheet, modal de alta rapida y empty states.
+- **EP-05 completado a nivel tecnico**: dashboard real desde Firestore, CRUD de cuentas, formulario de movimientos, transferencias e impacto contable remoto.
 
-Pendiente para probar EP-02 contra backend real:
+Pendiente para probar contra backend real:
 
 - crear un proyecto Firebase
 - habilitar Authentication con email y contraseña
-- crear `.env` local usando `.env.example`
 - colocar las variables `EXPO_PUBLIC_FIREBASE_*`
+- publicar/aplicar `firestore.rules` en el proyecto Firebase cuando corresponda
 
 Lo siguiente en la hoja de ruta es:
 
-1. modelo de datos cloud en Firestore
-2. onboarding autenticado
-3. primeras entidades financieras remotas
-4. dashboard, movimientos, obligaciones y estadisticas
+1. obligaciones, presupuestos y estadisticas
+2. configuracion avanzada
+3. gestion de categorias
+4. QA funcional y visual del MVP cloud-first
 
 ## Scripts
 
@@ -81,7 +84,9 @@ src/
   components/
   constants/
   lib/
+    domain/
     db/
+    firebase/
     utils/
   providers/
   stores/
@@ -106,6 +111,7 @@ cp .env.example .env
 ```
 
 Completa el `.env` con los valores de tu proyecto Firebase.
+`EXPO_PUBLIC_FIREBASE_DATABASE_ID` es opcional. Dejalo vacio para usar la base Firestore `(default)`.
 
 3. Inicia Expo:
 
@@ -122,8 +128,27 @@ La arquitectura objetivo del producto se documenta asi:
 - datos financieros vinculados a la cuenta autenticada
 - backend inicial en Firebase
 - nube como fuente de verdad prevista
+- modelo multiusuario bajo `/users/{uid}`
 
 La base local actual puede mantenerse mas adelante como soporte tecnico o cache, pero no debe leerse como la estrategia final del producto.
+
+## Firestore
+
+EP-03 define esta base remota:
+
+```text
+users/{uid}
+  profile/main
+  settings/app
+  accounts/{accountId}
+  movements/{movementId}
+  categories/{categoryId}
+  onboarding/state
+```
+
+El archivo `firestore.rules` contiene reglas locales para aislar cada usuario bajo su propio `uid`.
+
+Si ves `Database '(default)' not found`, crea Firestore Database en Firebase Console para el mismo proyecto configurado en `.env`. Si usas una base con ID personalizado, define `EXPO_PUBLIC_FIREBASE_DATABASE_ID` con ese ID.
 
 ## Branding
 
@@ -138,8 +163,10 @@ Los assets activos viven en:
 - EP-01 completado: fundaciones, shell y design system
 - EP-01.5 completado: pantallas visuales de login y registro
 - EP-02 completado: integracion de autenticacion real con Firebase
-- EP-03 siguiente: modelo de datos cloud y onboarding autenticado
-- EP-04+: dashboard, movimientos, obligaciones, estadisticas y configuracion
+- EP-03 completado: modelo de datos cloud y onboarding autenticado
+- EP-04 completado: navegacion principal y experiencia base autenticada
+- EP-05 completado: cuentas, movimientos, transferencias y dashboard
+- EP-06 siguiente: obligaciones, presupuestos y estadisticas
 
 ## Referencias del proyecto
 

@@ -5,7 +5,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { runMigrations } from "../src/lib/db/migrate";
 import { AppProviders } from "../src/providers/AppProviders";
-import { useAuthFlowStore } from "../src/stores";
+import { useAuthFlowStore, useOnboardingStore } from "../src/stores";
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -18,6 +18,10 @@ export default function RootLayout() {
       try {
         await runMigrations();
         await useAuthFlowStore.getState().bootstrapSession();
+        const user = useAuthFlowStore.getState().user;
+        if (user?.uid) {
+          await useOnboardingStore.getState().loadOnboardingState(user.uid);
+        }
         if (mounted) {
           setReady(true);
         }

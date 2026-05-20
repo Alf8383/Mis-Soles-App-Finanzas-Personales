@@ -8,6 +8,7 @@ export function Screen({
   scrollable = false,
   contentStyle,
   safeAreaEdges = ["top", "left", "right"],
+  bottomInset = 0,
 }) {
   const { colors, spacing } = useAppTheme();
 
@@ -17,7 +18,7 @@ export function Screen({
       backgroundColor: colors.background,
       paddingHorizontal: spacing.md,
       paddingTop: spacing.md,
-      paddingBottom: spacing.xl,
+      paddingBottom: spacing.xl + bottomInset,
     },
     contentStyle,
   ];

@@ -1,14 +1,17 @@
 import { Redirect, Tabs } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-import { useAuthFlowStore } from "../../src/stores";
+import { MainTabBar } from "../../src/components/navigation/MainTabBar";
+import { useAuthFlowStore, useOnboardingStore } from "../../src/stores";
 import { useAppTheme } from "../../src/theme";
 
 export default function TabsLayout() {
   const { colors } = useAppTheme();
   const status = useAuthFlowStore((state) => state.status);
+  const isOnboardingCompleted = useOnboardingStore((state) => state.isCompleted);
+  const onboardingStatus = useOnboardingStore((state) => state.status);
 
-  if (status === "loading") {
+  if (status === "loading" || onboardingStatus === "loading") {
     return (
       <View style={[styles.loadingState, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -20,8 +23,15 @@ export default function TabsLayout() {
     return <Redirect href="/(auth)/login" />;
   }
 
+  if (!isOnboardingCompleted) {
+    return <Redirect href="/(onboarding)" />;
+  }
+
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      tabBar={(props) => <MainTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
       <Tabs.Screen
         name="inicio"
         options={{
@@ -37,7 +47,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="estadisticas"
         options={{
-          title: "Estadisticas",
+          title: "Estadísticas",
         }}
       />
       <Tabs.Screen
@@ -49,7 +59,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="mas"
         options={{
-          title: "Mas",
+          title: "Más",
         }}
       />
     </Tabs>
