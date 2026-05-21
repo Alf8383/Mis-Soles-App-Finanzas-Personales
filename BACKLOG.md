@@ -3,7 +3,6 @@
 ## Fuentes revisadas
 
 - `MisSoles_Stitch_Brief.md`
-- `MisSoles_UI (1).html`
 - `stitch_mis_soles_ui_ux_design (1).zip`
 - `Mis_Soles_PRD_v1_2.docx`
 - `DESIGN.md`
@@ -16,7 +15,7 @@
 - Metodo inicial de acceso: **email + contraseña**.
 - Navegacion principal con 5 tabs: Inicio, Movimientos, Estadisticas, Obligaciones y Mas.
 - FAB central sobre la tab bar, visible en Inicio y Movimientos, que abre un bottom sheet de alta rapida.
-- Visual base confirmada en HTML, Stitch y `DESIGN.md`: estetica Modern Hacienda, verde profundo, tarjetas por capas tonales, fondo claro, tab bar crema, jerarquia editorial y mucho aire.
+- Visual base confirmada en Stitch, `DESIGN.md` y `STITCH_DESIGN_BRIEF.md`: estetica limpia, verde primario, tarjetas compactas, fondo claro, tab bar crema, jerarquia editorial y mucho aire.
 - Branding solicitado: `fullLogo.png` para splash, `logotype.png` para onboarding y `iconoSinLetras.png` para header in-app.
 - Reglas de negocio criticas del PRD: doble moneda PEN/USD con tipo de cambio manual, deudas informales y pagos fijos como flujos de primera clase, montos en unidades menores, `scheduled_payment` separado de la transaccion real y comisiones de transferencia modeladas como movimiento independiente.
 

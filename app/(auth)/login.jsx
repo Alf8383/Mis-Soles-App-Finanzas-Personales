@@ -74,12 +74,14 @@ export default function LoginScreen() {
         styles.container,
         {
           paddingHorizontal: spacing.xl,
-          paddingTop: 0,
-          paddingBottom: spacing.md,
+          paddingTop: spacing.md,
+          paddingBottom: spacing.xl,
         },
       ]}
     >
-      <Image source={branding.onboarding} style={styles.logo} resizeMode="contain" />
+      <View style={styles.hero}>
+        <Image source={branding.onboarding} style={styles.logo} resizeMode="contain" />
+      </View>
       <Text
         style={[
           styles.title,
@@ -97,19 +99,19 @@ export default function LoginScreen() {
           {
             color: colors.textSecondary,
             fontSize: typography.sizes.md,
-            marginBottom: spacing.xl,
+            marginBottom: spacing.lg,
           },
         ]}
       >
-        Ingresa a tu cuenta cloud de Mis Soles para continuar con tu información financiera.
+        Accede a tu cuenta de Mis Soles
       </Text>
 
-      <Card style={{ width: "100%" }}>
+      <Card style={styles.formCard}>
         <TextField
           label="Correo electrónico"
           value={email}
           onChangeText={handleEmailChange}
-          placeholder="tu@email.com"
+          placeholder="ejemplo@correo.com"
           keyboardType="email-address"
           errorMessage={shouldShowEmailError ? emailError : ""}
         />
@@ -118,10 +120,13 @@ export default function LoginScreen() {
           label="Contraseña"
           value={password}
           onChangeText={handlePasswordChange}
-          placeholder="Tu contraseña"
+          placeholder="Ingresa tu contraseña"
           secureTextEntry
           errorMessage={shouldShowPasswordError ? passwordError : ""}
         />
+        <Pressable style={styles.forgotLink}>
+          <Text style={[styles.forgotText, { color: colors.primary }]}>¿Olvidaste tu contraseña?</Text>
+        </Pressable>
         {authError ? (
           <Text style={[styles.notice, { color: colors.red, marginTop: spacing.md }]}>
             {authError}
@@ -137,7 +142,7 @@ export default function LoginScreen() {
 
       <Pressable
         onPress={() => router.push("/(auth)/register")}
-        style={{ marginTop: spacing.lg }}
+        style={{ marginTop: "auto", paddingTop: spacing.xl }}
       >
         <Text
           style={{
@@ -156,24 +161,42 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 8,
+  },
+  hero: {
+    alignItems: "center",
+    justifyContent: "flex-end",
+    minHeight: 235,
+    width: "100%",
   },
   logo: {
-    width: '100%',
-    height: 400,
-    marginBottom: 0,
-    marginTop: -40,
+    width: 610,
+    height: 330,
+    marginBottom: -62,
   },
   title: {
-    fontWeight: "700",
-    marginBottom: 0,
-    marginTop: -100,
+    fontWeight: "800",
+    marginTop: -10,
+    marginBottom: 6,
   },
   copy: {
     textAlign: "center",
     lineHeight: 22,
+  },
+  forgotLink: {
+    alignSelf: "flex-end",
+    marginTop: 10,
+  },
+  forgotText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  formCard: {
+    backgroundColor: "transparent",
+    borderWidth: 0,
+    elevation: 0,
+    shadowOpacity: 0,
+    width: "100%",
   },
   notice: {
     lineHeight: 20,

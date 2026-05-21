@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -85,10 +86,19 @@ export default function RegisterScreen() {
         styles.container,
         {
           paddingHorizontal: spacing.xl,
-          paddingVertical: spacing.xxl,
+          paddingTop: spacing.md,
+          paddingBottom: spacing.xl,
         },
       ]}
     >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Volver al login"
+        onPress={() => router.back()}
+        style={styles.backButton}
+      >
+        <Ionicons name="arrow-back" size={22} color={colors.primary} />
+      </Pressable>
       <Image source={branding.onboarding} style={styles.logo} resizeMode="contain" />
       <Text
         style={[
@@ -114,12 +124,12 @@ export default function RegisterScreen() {
         Empieza a usar Mis Soles en la nube y deja lista tu cuenta para guardar tus datos.
       </Text>
 
-      <Card style={{ width: "100%" }}>
+      <Card style={styles.formCard}>
         <TextField
           label="Correo electrónico"
           value={email}
           onChangeText={handleEmailChange}
-          placeholder="tu@email.com"
+          placeholder="Correo electrónico"
           keyboardType="email-address"
           errorMessage={shouldShowEmailError ? emailError : ""}
         />
@@ -128,7 +138,7 @@ export default function RegisterScreen() {
           label="Contraseña"
           value={password}
           onChangeText={handlePasswordChange}
-          placeholder="Crea una contraseña"
+          placeholder="Contraseña"
           secureTextEntry
           errorMessage={shouldShowPasswordError ? passwordError : ""}
         />
@@ -137,7 +147,7 @@ export default function RegisterScreen() {
           label="Confirmar contraseña"
           value={confirmPassword}
           onChangeText={handleConfirmPasswordChange}
-          placeholder="Repite tu contraseña"
+          placeholder="Confirmar contraseña"
           secureTextEntry
           errorMessage={shouldShowConfirmPasswordError ? confirmPasswordError : ""}
         />
@@ -156,7 +166,7 @@ export default function RegisterScreen() {
 
       <Pressable
         onPress={() => router.push("/(auth)/login")}
-        style={{ marginTop: spacing.lg }}
+        style={{ marginTop: "auto", paddingTop: spacing.xl }}
       >
         <Text
           style={{
@@ -175,17 +185,23 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: "center",
     alignItems: "center",
   },
+  backButton: {
+    alignSelf: "flex-start",
+    marginBottom: 0,
+    padding: 4,
+  },
   logo: {
-    width: 224,
-    height: 72,
-    marginBottom: 20,
+    width: 610,
+    height: 330,
+    marginBottom: -66,
+    marginTop: -58,
   },
   title: {
-    fontWeight: "700",
-    marginBottom: 8,
+    fontWeight: "800",
+    marginTop: -8,
+    marginBottom: 6,
   },
   copy: {
     textAlign: "center",
@@ -194,5 +210,12 @@ const styles = StyleSheet.create({
   notice: {
     lineHeight: 20,
     textAlign: "center",
+  },
+  formCard: {
+    backgroundColor: "transparent",
+    borderWidth: 0,
+    elevation: 0,
+    shadowOpacity: 0,
+    width: "100%",
   },
 });
