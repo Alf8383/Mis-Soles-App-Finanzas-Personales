@@ -1,22 +1,22 @@
 export const shadows = {
   card: {
-    shadowColor: "#000000",
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowColor: "#005440",
+    shadowOpacity: 0.06,
+    shadowRadius: 18,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 10,
     },
-    elevation: 2,
+    elevation: 1,
   },
   fab: {
-    shadowColor: "#0F6E56",
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
+    shadowColor: "#005440",
+    shadowOpacity: 0.22,
+    shadowRadius: 22,
     shadowOffset: {
       width: 0,
-      height: 6,
+      height: 12,
     },
-    elevation: 4,
+    elevation: 5,
   },
 };

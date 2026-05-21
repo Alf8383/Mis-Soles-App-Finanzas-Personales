@@ -25,6 +25,7 @@ export function QuickActionFab({ visible = true, onPress }) {
           borderRadius: radii.pill,
           bottom: Math.max(insets.bottom, spacing.xs) + 78,
           opacity: pressed ? 0.92 : 1,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
         },
       ]}
     >

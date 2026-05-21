@@ -58,7 +58,7 @@ export function ConfirmDialog({
               style={({ pressed }) => [
                 styles.cancelButton,
                 {
-                  borderColor: colors.border,
+          borderColor: colors.ghostBorder,
                   borderRadius: radii.md,
                   opacity: pressed ? 0.82 : 1,
                   paddingVertical: spacing.md,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
+    borderWidth: 0.5,
   },
   cancelLabel: {
     fontWeight: "700",

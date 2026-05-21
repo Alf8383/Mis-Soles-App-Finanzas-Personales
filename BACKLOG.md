@@ -6,6 +6,7 @@
 - `MisSoles_UI (1).html`
 - `stitch_mis_soles_ui_ux_design (1).zip`
 - `Mis_Soles_PRD_v1_2.docx`
+- `DESIGN.md`
 
 ## Sintesis de producto y UI
 
@@ -15,7 +16,7 @@
 - Metodo inicial de acceso: **email + contraseña**.
 - Navegacion principal con 5 tabs: Inicio, Movimientos, Estadisticas, Obligaciones y Mas.
 - FAB central sobre la tab bar, visible en Inicio y Movimientos, que abre un bottom sheet de alta rapida.
-- Visual base confirmada en HTML y Stitch: header verde, tarjetas limpias, fondo claro `#F4F6F4`, tab bar `#FFFBF0`, jerarquia flat, bordes sutiles y mucho aire.
+- Visual base confirmada en HTML, Stitch y `DESIGN.md`: estetica Modern Hacienda, verde profundo, tarjetas por capas tonales, fondo claro, tab bar crema, jerarquia editorial y mucho aire.
 - Branding solicitado: `fullLogo.png` para splash, `logotype.png` para onboarding y `iconoSinLetras.png` para header in-app.
 - Reglas de negocio criticas del PRD: doble moneda PEN/USD con tipo de cambio manual, deudas informales y pagos fijos como flujos de primera clase, montos en unidades menores, `scheduled_payment` separado de la transaccion real y comisiones de transferencia modeladas como movimiento independiente.
 
@@ -28,6 +29,8 @@
 - **EP-04 completado a nivel tecnico**: navegacion autenticada, tabs custom, FAB central, bottom sheet y empty states.
 - **EP-05 completado a nivel tecnico**: cuentas, movimientos, dashboard e impacto contable remoto en Firestore.
 - **EP-06 completado a nivel tecnico**: obligaciones, pagos fijos, presupuestos y estadisticas reales en Firestore.
+- **EP-07 completado a nivel tecnico**: configuracion, preferencias, tipo de cambio, categorias, sesion y QA base.
+- **DESIGN.md incorporado**: nuevos ajustes visuales deben priorizar ghost borders, superficies tonales y separacion por aire.
 
 ## Supuestos para este backlog
 
@@ -142,6 +145,8 @@ Estado: completada a nivel tecnico
 | MS-043 | P1 | M | Construir pantalla Estadisticas | Incluye periodo, resumenes, donut por categoria y barras semanales |
 
 ### EP-07. Configuracion y pulido final
+
+Estado: completada a nivel tecnico
 
 | ID | Pri | Talla | Item | Listo cuando |
 | --- | --- | --- | --- | --- |

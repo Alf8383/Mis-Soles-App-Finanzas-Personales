@@ -10,8 +10,8 @@ export function Card({ children, style }) {
       style={[
         styles.card,
         {
-          backgroundColor: colors.surface,
-          borderColor: colors.border,
+          backgroundColor: colors.surfaceContainerLowest,
+          borderColor: colors.ghostBorder,
           borderRadius: radii.lg,
           padding: spacing.md,
         },
@@ -26,6 +26,6 @@ export function Card({ children, style }) {
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 1,
+    borderWidth: 0.5,
   },
 });

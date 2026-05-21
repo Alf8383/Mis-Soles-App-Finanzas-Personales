@@ -84,6 +84,7 @@ export function QuickActionSheet({ visible, onClose, onSelect, title = "Alta rap
                       opacity: pressed ? 0.9 : 1,
                       paddingVertical: spacing.md,
                       paddingHorizontal: spacing.sm,
+                      transform: [{ scale: pressed ? 0.98 : 1 }],
                     },
                   ]}
                 >
@@ -126,6 +127,14 @@ const styles = StyleSheet.create({
   },
   sheet: {
     minHeight: 220,
+    shadowColor: "#005440",
+    shadowOffset: {
+      width: 0,
+      height: -12,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 32,
+    elevation: 8,
   },
   handle: {
     alignSelf: "center",
@@ -144,7 +153,7 @@ const styles = StyleSheet.create({
   option: {
     width: "31.5%",
     alignItems: "center",
-    borderWidth: 1,
+    borderWidth: 0.5,
     gap: 7,
   },
   iconWrap: {

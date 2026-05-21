@@ -11,8 +11,8 @@ export function Chip({ label, active = false, onPress }) {
       style={[
         styles.chip,
         {
-          backgroundColor: active ? colors.primary : colors.surface,
-          borderColor: active ? colors.primary : colors.border,
+          backgroundColor: active ? colors.primary : colors.surfaceContainerHigh,
+          borderColor: active ? colors.primary : "transparent",
           borderRadius: radii.pill,
           paddingHorizontal: spacing.md,
           paddingVertical: spacing.xs,
@@ -36,7 +36,7 @@ export function Chip({ label, active = false, onPress }) {
 
 const styles = StyleSheet.create({
   chip: {
-    borderWidth: 1,
+    borderWidth: 0.5,
   },
   label: {
     fontWeight: "600",

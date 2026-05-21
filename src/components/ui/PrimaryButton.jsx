@@ -13,10 +13,11 @@ export function PrimaryButton({ label, onPress, style, disabled = false }) {
         styles.button,
         {
           backgroundColor: disabled ? colors.textTertiary : colors.primary,
-          borderRadius: radii.md,
+          borderRadius: radii.xl,
           opacity: pressed && !disabled ? 0.92 : 1,
           paddingHorizontal: spacing.lg,
           paddingVertical: spacing.md,
+          transform: [{ scale: pressed && !disabled ? 0.98 : 1 }],
         },
         style,
       ]}

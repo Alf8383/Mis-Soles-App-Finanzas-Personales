@@ -120,7 +120,7 @@ export default function EstadisticasScreen() {
               </View>
             </View>
             {statistics.categoryTotals.map((category) => (
-              <View key={category.categoryId} style={[styles.categoryRow, { borderColor: colors.border }]}>
+              <View key={category.categoryId} style={[styles.categoryRow, { backgroundColor: colors.surfaceContainerLow }]}>
                 <View style={[styles.categoryDot, { backgroundColor: category.color }]} />
                 <View style={styles.itemInfo}>
                   <Text style={[styles.name, { color: colors.textPrimary }]}>{category.name}</Text>
@@ -199,10 +199,10 @@ const styles = StyleSheet.create({
   },
   categoryRow: {
     alignItems: "center",
-    borderTopWidth: 1,
+    borderRadius: 18,
     flexDirection: "row",
     gap: 10,
-    paddingTop: 12,
+    padding: 12,
     marginTop: 12,
   },
   donut: {

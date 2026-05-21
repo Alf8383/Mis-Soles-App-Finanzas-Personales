@@ -1,11 +1,13 @@
 export { useAccountsStore } from "./accounts-store";
 export { useAuthFlowStore } from "./auth-flow-store";
 export { useBudgetsStore } from "./budgets-store";
+export { useCategoriesStore } from "./categories-store";
 export { useDashboardStore } from "./dashboard-store";
 export { useMovementFiltersStore } from "./movement-filters-store";
 export { useMovementsStore } from "./movements-store";
 export { useObligationsStore } from "./obligations-store";
 export { useOnboardingStore } from "./onboarding-store";
 export { useScheduledPaymentsStore } from "./scheduled-payments-store";
+export { useSettingsStore } from "./settings-store";
 export { useStatisticsStore } from "./statistics-store";
 export { useUiPreferencesStore } from "./ui-preferences-store";

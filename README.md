@@ -49,6 +49,8 @@ El proyecto ya incluye:
 - **EP-04 completado a nivel tecnico**: shell autenticado con tabs custom, FAB central, bottom sheet, modal de alta rapida y empty states.
 - **EP-05 completado a nivel tecnico**: dashboard real desde Firestore, CRUD de cuentas, formulario de movimientos, transferencias e impacto contable remoto.
 - **EP-06 completado a nivel tecnico**: obligaciones, pagos fijos, presupuestos y estadisticas reales desde Firestore.
+- **EP-07 completado a nivel tecnico**: configuracion, tipo de cambio, gestion de categorias, datos de sesion y pulido final del MVP.
+- **DESIGN.md incorporado**: la UI converge hacia el sistema Modern Hacienda con capas tonales, ghost borders y menos divisores duros.
 
 Pendiente para probar contra backend real:
 
@@ -59,9 +61,9 @@ Pendiente para probar contra backend real:
 
 Lo siguiente en la hoja de ruta es:
 
-1. configuracion avanzada
-2. gestion de categorias
-3. QA funcional y visual del MVP cloud-first
+1. QA funcional en dispositivo real
+2. preparacion de build interna
+3. ajustes finos previos a publicacion
 
 ## Scripts
 
@@ -161,6 +163,10 @@ Los assets activos viven en:
 - `assets/images/branding/logotype.png`
 - `assets/images/branding/iconoSinLetras.png`
 
+## Diseño
+
+El archivo `DESIGN.md` es la referencia visual vigente para nuevas pantallas y ajustes UI. Prioriza la estetica Modern Hacienda: verde profundo, superficies tonales, jerarquia editorial, ghost borders y separacion por aire antes que lineas duras.
+
 ## Roadmap inmediato
 
 - EP-01 completado: fundaciones, shell y design system
@@ -170,9 +176,10 @@ Los assets activos viven en:
 - EP-04 completado: navegacion principal y experiencia base autenticada
 - EP-05 completado: cuentas, movimientos, transferencias y dashboard
 - EP-06 completado: obligaciones, presupuestos y estadisticas
-- EP-07 siguiente: configuracion y pulido final
+- EP-07 completado: configuracion, categorias y pulido final
 
 ## Referencias del proyecto
 
 - `BACKLOG.md`
+- `DESIGN.md`
 - brief de Stitch y assets de marca usados para la base visual del producto

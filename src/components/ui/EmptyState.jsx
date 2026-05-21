@@ -19,6 +19,7 @@ export function EmptyState({
         styles.wrapper,
         {
           borderColor: colors.border,
+          backgroundColor: colors.surfaceContainerLow,
           borderRadius: radii.xl,
           padding: spacing.lg,
         },
@@ -69,8 +70,7 @@ export function EmptyState({
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
-    borderWidth: 1,
-    borderStyle: "dashed",
+    borderWidth: 0.5,
   },
   iconWrap: {
     width: 54,

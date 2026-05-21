@@ -44,7 +44,7 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       {!ready ? (
         <View style={styles.loadingState}>
-          <ActivityIndicator size="large" color="#0F6E56" />
+          <ActivityIndicator size="large" color="#005440" />
           <Text style={styles.loadingTitle}>Preparando Mis Soles</Text>
           <Text style={styles.loadingCopy}>
             {error
@@ -73,7 +73,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   loadingState: {
     flex: 1,
-    backgroundColor: "#F4F6F4",
+    backgroundColor: "#F8FAF8",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
@@ -82,13 +82,13 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 20,
     fontWeight: "700",
-    color: "#111827",
+    color: "#191C1B",
   },
   loadingCopy: {
     marginTop: 8,
     fontSize: 14,
     lineHeight: 20,
-    color: "#6B7280",
+    color: "#5D6662",
     textAlign: "center",
   },
 });

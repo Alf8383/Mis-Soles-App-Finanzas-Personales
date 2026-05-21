@@ -43,7 +43,7 @@ export function TextField({
           styles.input,
           {
             backgroundColor: colors.surface,
-            borderColor: errorMessage ? colors.red : colors.border,
+            borderColor: errorMessage ? colors.red : colors.ghostBorder,
             borderRadius: radii.md,
             color: colors.textPrimary,
             fontSize: typography.sizes.md,
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 0.5,
   },
   error: {
     lineHeight: 18,

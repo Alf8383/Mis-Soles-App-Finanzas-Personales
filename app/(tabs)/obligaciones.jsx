@@ -282,7 +282,7 @@ export default function ObligacionesScreen() {
             />
           ) : (
             scheduledStore.scheduledPayments.map((payment) => (
-              <View key={payment.id} style={[styles.itemBlock, { borderColor: colors.border }]}>
+              <View key={payment.id} style={[styles.itemBlock, { backgroundColor: colors.surfaceContainerLow }]}>
                 <View style={styles.itemRow}>
                   <View style={styles.itemInfo}>
                     <Text style={[styles.name, { color: colors.textPrimary }]}>{payment.name}</Text>
@@ -431,7 +431,7 @@ function DebtSection({
         <EmptyState icon="people-outline" title="Sin deudas" description="Cuando registres una deuda aparecerá aquí." />
       ) : (
         debts.map((obligation) => (
-          <View key={obligation.id} style={[styles.itemBlock, { borderColor: colors.border }]}>
+          <View key={obligation.id} style={[styles.itemBlock, { backgroundColor: colors.surfaceContainerLow }]}>
             <View style={styles.itemRow}>
               <View style={styles.itemInfo}>
                 <Text style={[styles.name, { color: colors.textPrimary }]}>{obligation.personName}</Text>
@@ -511,7 +511,7 @@ function BudgetRow({ budget, category, colors, onArchive }) {
     budget.progress >= 100 ? colors.red : budget.progress >= Number(budget.alertThreshold || 80) ? colors.gold : colors.primary;
 
   return (
-    <View style={[styles.itemBlock, { borderColor: colors.border }]}>
+    <View style={[styles.itemBlock, { backgroundColor: colors.surfaceContainerLow }]}>
       <View style={styles.itemRow}>
         <View style={styles.itemInfo}>
           <Text style={[styles.name, { color: colors.textPrimary }]}>{category?.name || "Categoría"}</Text>
@@ -577,8 +577,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   itemBlock: {
-    borderTopWidth: 1,
-    paddingTop: 14,
+    borderRadius: 18,
+    padding: 14,
     marginTop: 14,
   },
   itemInfo: {
