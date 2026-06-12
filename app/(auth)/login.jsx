@@ -12,12 +12,16 @@ export default function LoginScreen() {
   const { colors, spacing, typography } = useAppTheme();
   const authError = useAuthFlowStore((state) => state.error);
   const clearError = useAuthFlowStore((state) => state.clearError);
+  const requestPasswordReset = useAuthFlowStore((state) => state.requestPasswordReset);
   const signIn = useAuthFlowStore((state) => state.signIn);
   const status = useAuthFlowStore((state) => state.status);
   const isOnboardingCompleted = useOnboardingStore((state) => state.isCompleted);
   const loadOnboardingState = useOnboardingStore((state) => state.loadOnboardingState);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetFeedback, setResetFeedback] = useState(null);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [resetSubmitted, setResetSubmitted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const trimmedEmail = email.trim();
@@ -35,21 +39,26 @@ export default function LoginScreen() {
         : "";
   const isFormValid = !emailError && !passwordError;
   const isLoading = status === "loading";
-  const shouldShowEmailError = submitted || trimmedEmail.length > 0;
+  const shouldShowEmailError = submitted || resetSubmitted || trimmedEmail.length > 0;
   const shouldShowPasswordError = submitted || password.length > 0;
+  const notice = resetFeedback || (authError ? { type: "error", text: authError } : null);
 
   function handleEmailChange(value) {
     setEmail(value);
+    setResetSubmitted(false);
+    setResetFeedback(null);
     clearError();
   }
 
   function handlePasswordChange(value) {
     setPassword(value);
+    setResetFeedback(null);
     clearError();
   }
 
   async function handleLogin() {
     setSubmitted(true);
+    setResetFeedback(null);
     clearError();
 
     if (!isFormValid) {
@@ -65,6 +74,30 @@ export default function LoginScreen() {
       const onboarding = await loadOnboardingState(result.user.uid);
       router.replace(onboarding.completed || isOnboardingCompleted ? "/(tabs)/inicio" : "/(onboarding)");
     }
+  }
+
+  async function handlePasswordReset() {
+    clearError();
+    setResetFeedback(null);
+    setResetSubmitted(true);
+
+    if (emailError) {
+      return;
+    }
+
+    setIsResettingPassword(true);
+    const result = await requestPasswordReset(trimmedEmail);
+    setIsResettingPassword(false);
+
+    if (result.error) {
+      setResetFeedback({ type: "error", text: result.error });
+      return;
+    }
+
+    setResetFeedback({
+      type: "success",
+      text: "Te enviamos un enlace para restablecer tu contraseña.",
+    });
   }
 
   return (
@@ -124,12 +157,33 @@ export default function LoginScreen() {
           secureTextEntry
           errorMessage={shouldShowPasswordError ? passwordError : ""}
         />
-        <Pressable style={styles.forgotLink}>
-          <Text style={[styles.forgotText, { color: colors.primary }]}>¿Olvidaste tu contraseña?</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Solicitar restablecimiento de contraseña"
+          disabled={isResettingPassword || isLoading}
+          onPress={handlePasswordReset}
+          style={({ pressed }) => [
+            styles.forgotLink,
+            {
+              opacity: pressed && !isResettingPassword && !isLoading ? 0.75 : 1,
+            },
+          ]}
+        >
+          <Text style={[styles.forgotText, { color: colors.primary }]}>
+            {isResettingPassword ? "Enviando..." : "¿Olvidaste tu contraseña?"}
+          </Text>
         </Pressable>
-        {authError ? (
-          <Text style={[styles.notice, { color: colors.red, marginTop: spacing.md }]}>
-            {authError}
+        {notice ? (
+          <Text
+            style={[
+              styles.notice,
+              {
+                color: notice.type === "success" ? colors.primary : colors.red,
+                marginTop: spacing.md,
+              },
+            ]}
+          >
+            {notice.text}
           </Text>
         ) : null}
         <PrimaryButton
