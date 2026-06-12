@@ -26,6 +26,7 @@ export default function RootLayout() {
           setReady(true);
         }
       } catch (migrationError) {
+        console.error("Bootstrap failed", migrationError);
         if (mounted) {
           setError(migrationError);
         }
@@ -48,7 +49,7 @@ export default function RootLayout() {
           <Text style={styles.loadingTitle}>Preparando Mis Soles</Text>
           <Text style={styles.loadingCopy}>
             {error
-              ? "Hubo un problema inicializando la base local."
+              ? `Hubo un problema inicializando la base local: ${error.message}`
               : "Inicializando rutas, sesion y almacenamiento local."}
           </Text>
         </View>

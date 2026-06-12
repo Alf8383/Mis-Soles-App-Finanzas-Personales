@@ -1,4 +1,4 @@
-import { getSQLiteDatabase } from "./client";
+import { getSQLiteDatabaseAsync } from "./client";
 
 const APP_META_SQL = `
 CREATE TABLE IF NOT EXISTS app_meta (
@@ -12,6 +12,6 @@ VALUES ('schema_version', '0000_app_meta', CURRENT_TIMESTAMP);
 `;
 
 export async function runMigrations() {
-  const db = getSQLiteDatabase();
+  const db = await getSQLiteDatabaseAsync();
   await db.execAsync(APP_META_SQL);
 }

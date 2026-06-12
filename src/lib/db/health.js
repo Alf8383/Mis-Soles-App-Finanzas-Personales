@@ -1,7 +1,7 @@
-import { getSQLiteDatabase } from "./client";
+import { getSQLiteDatabaseAsync } from "./client";
 
 export async function getDatabaseHealth() {
-  const db = getSQLiteDatabase();
+  const db = await getSQLiteDatabaseAsync();
   const result = await db.getFirstAsync(
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'app_meta';"
   );
