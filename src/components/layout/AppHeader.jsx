@@ -4,17 +4,19 @@ import { branding } from "../../constants/branding";
 import { useAppTheme } from "../../theme";
 
 export function AppHeader({ title, subtitle, rightSlot }) {
-  const { colors, radii, spacing, typography } = useAppTheme();
+  const { colors, radii, shadows, spacing, typography } = useAppTheme();
 
   return (
     <View
       style={[
         styles.wrapper,
+        shadows.raised,
         {
           backgroundColor: colors.primary,
+          borderColor: "rgba(255,255,255,0.18)",
           borderRadius: radii.xl,
-          paddingHorizontal: spacing.md,
-          paddingVertical: spacing.md,
+          paddingHorizontal: spacing.lg,
+          paddingVertical: spacing.lg,
         },
       ]}
     >
@@ -37,9 +39,10 @@ export function AppHeader({ title, subtitle, rightSlot }) {
               styles.title,
               {
                 color: colors.surface,
-                fontSize: typography.sizes.lg,
+                fontSize: typography.sizes.xl,
               },
             ]}
+            numberOfLines={1}
           >
             {title}
           </Text>
@@ -68,10 +71,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderWidth: 0.5,
+    gap: 12,
   },
   left: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
   },
   logoWrap: {
     width: 40,
@@ -84,10 +90,10 @@ const styles = StyleSheet.create({
     height: 28,
   },
   title: {
-    fontWeight: "700",
+    fontWeight: "900",
   },
   subtitle: {
     marginTop: 2,
-    fontWeight: "500",
+    fontWeight: "700",
   },
 });

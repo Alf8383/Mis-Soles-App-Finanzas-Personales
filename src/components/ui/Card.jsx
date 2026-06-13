@@ -11,9 +11,9 @@ export function Card({ children, style }) {
         styles.card,
         {
           backgroundColor: colors.surfaceContainerLowest,
-          borderColor: colors.ghostBorder,
+          borderColor: colors.border,
           borderRadius: radii.lg,
-          padding: spacing.md,
+          padding: spacing.lg,
         },
         shadows.card,
         style,
@@ -27,5 +27,6 @@ export function Card({ children, style }) {
 const styles = StyleSheet.create({
   card: {
     borderWidth: 0.5,
+    overflow: "hidden",
   },
 });

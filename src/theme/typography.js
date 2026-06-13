@@ -15,12 +15,12 @@ export const typography = {
   },
   sizes: {
     xs: 11,
-    sm: 12,
+    sm: 13,
     md: 14,
     lg: 16,
     xl: 20,
-    xxl: 24,
-    display: 32,
+    xxl: 26,
+    display: 34,
   },
   lineHeights: {
     tight: 18,

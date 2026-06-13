@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 import { getSQLiteDatabaseAsync } from "./client";
 
 const APP_META_SQL = `
@@ -11,7 +13,16 @@ INSERT OR IGNORE INTO app_meta (key, value, updated_at)
 VALUES ('schema_version', '0000_app_meta', CURRENT_TIMESTAMP);
 `;
 
+let migrationPromise;
+
 export async function runMigrations() {
-  const db = await getSQLiteDatabaseAsync();
-  await db.execAsync(APP_META_SQL);
+  if (Platform.OS === "web") {
+    return;
+  }
+
+  if (!migrationPromise) {
+    migrationPromise = getSQLiteDatabaseAsync().then((db) => db.execAsync(APP_META_SQL));
+  }
+
+  await migrationPromise;
 }

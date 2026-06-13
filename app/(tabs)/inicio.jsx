@@ -43,7 +43,7 @@ export default function InicioScreen() {
       <Screen scrollable bottomInset={120}>
         <AppHeader
           title="Inicio"
-          subtitle="Tu resumen financiero cloud"
+          subtitle="Tu resumen financiero"
           rightSlot={
             <Pressable
               accessibilityRole="button"

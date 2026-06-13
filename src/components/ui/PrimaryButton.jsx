@@ -14,10 +14,10 @@ export function PrimaryButton({ label, onPress, style, disabled = false }) {
         {
           backgroundColor: disabled ? colors.textTertiary : colors.primary,
           borderRadius: radii.xl,
-          opacity: pressed && !disabled ? 0.92 : 1,
+          opacity: pressed && !disabled ? 0.9 : 1,
           paddingHorizontal: spacing.lg,
           paddingVertical: spacing.md,
-          transform: [{ scale: pressed && !disabled ? 0.98 : 1 }],
+          transform: [{ translateY: pressed && !disabled ? 1 : 0 }, { scale: pressed && !disabled ? 0.985 : 1 }],
         },
         style,
       ]}
@@ -41,8 +41,9 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     justifyContent: "center",
+    minHeight: 50,
   },
   label: {
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });

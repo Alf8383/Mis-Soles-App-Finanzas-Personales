@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAppTheme } from "../../theme";
@@ -20,6 +20,7 @@ export function Screen({
       paddingTop: spacing.md,
       paddingBottom: spacing.xl + bottomInset,
     },
+    Platform.OS === "web" ? styles.webContent : null,
     contentStyle,
   ];
 
@@ -48,5 +49,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
+  },
+  webContent: {
+    alignSelf: "center",
+    maxWidth: 780,
+    width: "100%",
   },
 });

@@ -21,7 +21,8 @@ export function EmptyState({
           borderColor: colors.border,
           backgroundColor: colors.surfaceContainerLow,
           borderRadius: radii.xl,
-          padding: spacing.lg,
+          paddingHorizontal: spacing.lg,
+          paddingVertical: spacing.xl,
         },
       ]}
     >
@@ -31,7 +32,7 @@ export function EmptyState({
           {
             backgroundColor: colors.primarySoft,
             borderRadius: radii.pill,
-            marginBottom: spacing.md,
+            marginBottom: spacing.sm,
           },
         ]}
       >
@@ -53,7 +54,7 @@ export function EmptyState({
           styles.description,
           {
             color: colors.textSecondary,
-            fontSize: typography.sizes.md,
+            fontSize: typography.sizes.sm,
             marginTop: spacing.xs,
           },
         ]}
@@ -71,6 +72,7 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
     borderWidth: 0.5,
+    width: "100%",
   },
   iconWrap: {
     width: 54,
@@ -79,11 +81,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontWeight: "800",
+    fontWeight: "900",
     textAlign: "center",
   },
   description: {
-    lineHeight: 22,
+    lineHeight: 20,
+    maxWidth: 360,
     textAlign: "center",
   },
 });

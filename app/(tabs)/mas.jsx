@@ -103,8 +103,8 @@ export default function MasScreen() {
 
   return (
     <>
-      <Screen scrollable bottomInset={32}>
-        <AppHeader title="Más" subtitle="Configuración y estado cloud" />
+      <Screen scrollable bottomInset={120}>
+        <AppHeader title="Más" subtitle="Configuración y cuenta" />
 
         {settingsStatus === "loading" ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.lg }} />
@@ -137,7 +137,7 @@ export default function MasScreen() {
           <SettingRow
             icon="wallet-outline"
             title="Cuentas"
-            description="Consulta, crea y edita tus cuentas cloud."
+            description="Consulta, crea y edita tus cuentas."
             onPress={() => router.push("/(modals)/cuentas")}
           />
           <SettingRow
@@ -208,7 +208,7 @@ export default function MasScreen() {
       <ConfirmDialog
         visible={confirmSignOutVisible}
         title="¿Cerrar sesión?"
-        message="Volverás al login. Tus datos cloud no se eliminarán."
+        message="Volverás al login. Tus datos guardados no se eliminarán."
         confirmLabel={isSigningOut ? "Cerrando..." : "Cerrar sesión"}
         cancelLabel="Volver"
         onCancel={() => setConfirmSignOutVisible(false)}

@@ -174,17 +174,30 @@ export default function LoginScreen() {
           </Text>
         </Pressable>
         {notice ? (
-          <Text
+          <View
             style={[
-              styles.notice,
+              styles.noticeBox,
               {
-                color: notice.type === "success" ? colors.primary : colors.red,
+                backgroundColor: notice.type === "success" ? colors.primarySoft : colors.redSoft,
+                borderColor: notice.type === "success" ? colors.border : colors.red,
                 marginTop: spacing.md,
+                paddingHorizontal: spacing.md,
+                paddingVertical: spacing.sm,
               },
             ]}
           >
-            {notice.text}
-          </Text>
+            <Text
+              style={[
+                styles.notice,
+                {
+                  color: notice.type === "success" ? colors.primary : colors.red,
+                  fontSize: typography.sizes.sm,
+                },
+              ]}
+            >
+              {notice.text}
+            </Text>
+          </View>
         ) : null}
         <PrimaryButton
           label={isLoading ? "Ingresando..." : "Ingresar"}
@@ -250,6 +263,13 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     elevation: 0,
     shadowOpacity: 0,
+    width: "100%",
+  },
+  noticeBox: {
+    alignSelf: "center",
+    borderRadius: 12,
+    borderWidth: 0.5,
+    maxWidth: 420,
     width: "100%",
   },
   notice: {

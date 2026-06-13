@@ -8,14 +8,16 @@ export function Chip({ label, active = false, onPress }) {
   return (
     <Pressable
       onPress={onPress}
-      style={[
+      style={({ pressed }) => [
         styles.chip,
         {
-          backgroundColor: active ? colors.primary : colors.surfaceContainerHigh,
-          borderColor: active ? colors.primary : "transparent",
+          backgroundColor: active ? colors.primary : colors.surfaceContainerLow,
+          borderColor: active ? colors.primary : colors.border,
           borderRadius: radii.pill,
           paddingHorizontal: spacing.md,
           paddingVertical: spacing.xs,
+          opacity: pressed ? 0.86 : 1,
+          transform: [{ translateY: pressed ? 1 : 0 }],
         },
       ]}
     >
@@ -37,8 +39,10 @@ export function Chip({ label, active = false, onPress }) {
 const styles = StyleSheet.create({
   chip: {
     borderWidth: 0.5,
+    minHeight: 34,
+    justifyContent: "center",
   },
   label: {
-    fontWeight: "600",
+    fontWeight: "800",
   },
 });

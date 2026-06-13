@@ -97,7 +97,7 @@ export default function CuentasModal() {
               Cuentas
             </Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              Administra tus saldos cloud
+              Administra tus saldos
             </Text>
           </View>
           <Pressable

@@ -78,6 +78,7 @@ export default function MovimientosScreen() {
     });
   }, [categoryById, movements, query, quickFilter]);
   const groups = groupMovementsByDate(filteredMovements);
+  const isLoading = status === "loading";
 
   function handleQuickAction(type) {
     setQuickActionsVisible(false);
@@ -103,12 +104,14 @@ export default function MovimientosScreen() {
       <Screen scrollable bottomInset={120}>
         <AppHeader title="Movimientos" subtitle="Registro y filtros rápidos" />
 
-        <TextField
-          label="Buscar"
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Categoría, descripción o tipo"
-        />
+        <View style={{ marginTop: spacing.lg }}>
+          <TextField
+            label="Buscar"
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Categoría, descripción o tipo"
+          />
+        </View>
 
         <View style={[styles.filters, { marginTop: spacing.md }]}>
           {QUICK_FILTERS.map((filter, index) => (
@@ -121,12 +124,12 @@ export default function MovimientosScreen() {
           ))}
         </View>
 
-        {status === "loading" ? (
+        {isLoading ? (
           <ActivityIndicator style={{ marginTop: spacing.lg }} color={colors.primary} />
         ) : null}
         {error ? <Text style={[styles.error, { color: colors.red, marginTop: spacing.md }]}>{error}</Text> : null}
 
-        {groups.length === 0 ? (
+        {!isLoading && groups.length === 0 ? (
           <Card style={{ marginTop: spacing.md }}>
             <EmptyState
               icon="swap-vertical-outline"

@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TextInput, View } from "react-native";
+import { useState } from "react";
 
 import { useAppTheme } from "../../theme";
 
@@ -11,8 +12,10 @@ export function TextField({
   keyboardType = "default",
   autoCapitalize = "none",
   errorMessage,
+  ...inputProps
 }) {
   const { colors, radii, spacing, typography } = useAppTheme();
+  const [focused, setFocused] = useState(false);
 
   return (
     <View style={styles.wrapper}>
@@ -39,11 +42,13 @@ export function TextField({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoCorrect={false}
+        onBlur={() => setFocused(false)}
+        onFocus={() => setFocused(true)}
         style={[
           styles.input,
           {
             backgroundColor: colors.surface,
-            borderColor: errorMessage ? colors.red : colors.ghostBorder,
+            borderColor: errorMessage ? colors.red : focused ? colors.primary : colors.ghostBorder,
             borderRadius: radii.md,
             color: colors.textPrimary,
             fontSize: typography.sizes.md,
@@ -51,6 +56,7 @@ export function TextField({
             paddingVertical: spacing.md,
           },
         ]}
+        {...inputProps}
       />
       {errorMessage ? (
         <Text
@@ -78,7 +84,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   input: {
-    borderWidth: 0.5,
+    borderWidth: 1,
+    minHeight: 52,
   },
   error: {
     lineHeight: 18,

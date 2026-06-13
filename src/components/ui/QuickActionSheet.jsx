@@ -33,8 +33,6 @@ export function QuickActionSheet({ visible, onClose, onSelect, title = "Alta rap
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
       <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Cerrar acciones rapidas"
         style={[styles.overlay, { backgroundColor: colors.overlay }]}
         onPress={onClose}
       >
@@ -45,7 +43,7 @@ export function QuickActionSheet({ visible, onClose, onSelect, title = "Alta rap
               backgroundColor: colors.surface,
               borderTopLeftRadius: radii.xxl,
               borderTopRightRadius: radii.xxl,
-              paddingHorizontal: spacing.md,
+              paddingHorizontal: spacing.lg,
               paddingTop: spacing.sm,
               paddingBottom: Math.max(insets.bottom, spacing.md),
             },
@@ -58,7 +56,7 @@ export function QuickActionSheet({ visible, onClose, onSelect, title = "Alta rap
               styles.title,
               {
                 color: colors.textPrimary,
-                fontSize: typography.sizes.lg,
+                fontSize: typography.sizes.xl,
                 marginTop: spacing.sm,
                 marginBottom: spacing.md,
               },
@@ -80,7 +78,7 @@ export function QuickActionSheet({ visible, onClose, onSelect, title = "Alta rap
                     {
                       backgroundColor: colors.background,
                       borderColor: colors.border,
-                      borderRadius: radii.md,
+                      borderRadius: radii.lg,
                       opacity: pressed ? 0.9 : 1,
                       paddingVertical: spacing.md,
                       paddingHorizontal: spacing.sm,
@@ -135,6 +133,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 32,
     elevation: 8,
+    maxWidth: 780,
+    width: "100%",
+    alignSelf: "center",
   },
   handle: {
     alignSelf: "center",
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   title: {
-    fontWeight: "800",
+    fontWeight: "900",
   },
   options: {
     flexDirection: "row",

@@ -29,7 +29,7 @@ export default function EstadisticasScreen() {
   }, [period, statistics.loadStatistics, user?.uid]);
 
   return (
-    <Screen scrollable bottomInset={32}>
+    <Screen scrollable bottomInset={120}>
       <AppHeader title="Estadísticas" subtitle="Tendencias reales desde tus movimientos" />
 
       <View style={[styles.filters, { marginTop: spacing.lg }]}>

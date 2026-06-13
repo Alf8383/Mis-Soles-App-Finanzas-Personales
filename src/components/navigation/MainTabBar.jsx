@@ -13,16 +13,20 @@ const TAB_ICON_BY_ROUTE = {
 };
 
 export function MainTabBar({ state, descriptors, navigation }) {
-  const { colors, spacing } = useAppTheme();
+  const { colors, radii, shadows, spacing } = useAppTheme();
   const insets = useSafeAreaInsets();
 
   return (
     <View
       style={[
         styles.wrapper,
+        shadows.card,
         {
           backgroundColor: colors.tabBar,
-          borderTopColor: "rgba(239,159,39,0.2)",
+          borderColor: colors.border,
+          borderRadius: radii.xl,
+          marginBottom: spacing.xs,
+          marginHorizontal: spacing.md,
           paddingBottom: Math.max(insets.bottom, spacing.xs),
         },
       ]}
@@ -54,17 +58,18 @@ export function MainTabBar({ state, descriptors, navigation }) {
             accessibilityState={focused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
             onPress={handlePress}
-            style={styles.item}
+            style={({ pressed }) => [
+              styles.item,
+              {
+                backgroundColor: focused ? colors.primarySoft : "transparent",
+                borderRadius: radii.lg,
+                opacity: pressed ? 0.86 : 1,
+              },
+            ]}
           >
-            <View
-              style={[
-                styles.activeBar,
-                { backgroundColor: focused ? colors.primary : "transparent" },
-              ]}
-            />
             <Ionicons
               name={iconName}
-              size={22}
+              size={21}
               color={focused ? colors.primary : colors.textTertiary}
             />
             <Text
@@ -86,26 +91,24 @@ export function MainTabBar({ state, descriptors, navigation }) {
 const styles = StyleSheet.create({
   wrapper: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    borderTopWidth: 1,
-    minHeight: 72,
+    alignItems: "center",
+    alignSelf: "center",
+    borderWidth: 0.5,
+    maxWidth: 780,
+    minHeight: 70,
+    paddingHorizontal: 6,
     paddingTop: 6,
+    width: "100%",
   },
   item: {
     flex: 1,
-    minHeight: 56,
+    minHeight: 54,
     alignItems: "center",
-    justifyContent: "flex-start",
-    gap: 2,
-  },
-  activeBar: {
-    width: 22,
-    height: 3,
-    borderRadius: 2,
-    marginBottom: 1,
+    justifyContent: "center",
+    gap: 3,
   },
   label: {
-    fontSize: 9,
-    fontWeight: "700",
+    fontSize: 10,
+    fontWeight: "800",
   },
 });
