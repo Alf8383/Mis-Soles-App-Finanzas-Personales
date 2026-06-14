@@ -1,5 +1,6 @@
 import { addDays, format, startOfWeek } from "date-fns";
 
+import { DEFAULT_CATEGORY_ICON } from "../../domain/category-icons";
 import { MovementType } from "../../domain/enums";
 import { fromMinorUnits } from "../../domain/money";
 import { getPreviousMonthRange, getThisMonthRange } from "../../utils";
@@ -69,6 +70,7 @@ function getCategoryTotals(movements, categories, totalExpenseMinor) {
         amountMinor,
         categoryId,
         color: category?.color || "#EF9F27",
+        icon: category?.icon || DEFAULT_CATEGORY_ICON,
         name: category?.name || "Sin categoría",
         percent: totalExpenseMinor > 0 ? Math.round((amountMinor / totalExpenseMinor) * 100) : 0,
       };

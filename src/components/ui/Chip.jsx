@@ -39,7 +39,7 @@ export function Chip({ label, active = false, onPress }) {
 const styles = StyleSheet.create({
   chip: {
     borderWidth: 0.5,
-    minHeight: 34,
+    minHeight: 32,
     justifyContent: "center",
   },
   label: {

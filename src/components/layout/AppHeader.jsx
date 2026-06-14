@@ -4,29 +4,28 @@ import { branding } from "../../constants/branding";
 import { useAppTheme } from "../../theme";
 
 export function AppHeader({ title, subtitle, rightSlot }) {
-  const { colors, radii, shadows, spacing, typography } = useAppTheme();
+  const { colors, spacing, typography } = useAppTheme();
 
   return (
     <View
       style={[
         styles.wrapper,
-        shadows.raised,
         {
-          backgroundColor: colors.primary,
-          borderColor: "rgba(255,255,255,0.18)",
-          borderRadius: radii.xl,
+          backgroundColor: "rgba(0, 81, 62, 0.075)",
+          marginHorizontal: -spacing.md,
           paddingHorizontal: spacing.lg,
-          paddingVertical: spacing.lg,
+          paddingVertical: spacing.md,
         },
       ]}
     >
+      <View style={[styles.brandRail, { backgroundColor: colors.primary }]} />
       <View style={styles.left}>
         <View
           style={[
             styles.logoWrap,
             {
-              backgroundColor: colors.surface,
-              borderRadius: radii.md,
+              backgroundColor: "rgba(255, 255, 255, 0.82)",
+              borderColor: "rgba(0,81,62,0.16)",
               marginRight: spacing.sm,
             },
           ]}
@@ -38,7 +37,8 @@ export function AppHeader({ title, subtitle, rightSlot }) {
             style={[
               styles.title,
               {
-                color: colors.surface,
+                color: colors.textPrimary,
+                fontFamily: typography.fontFamily.extraBold,
                 fontSize: typography.sizes.xl,
               },
             ]}
@@ -51,8 +51,9 @@ export function AppHeader({ title, subtitle, rightSlot }) {
               style={[
                 styles.subtitle,
                 {
-                  color: "rgba(255,255,255,0.72)",
-                  fontSize: typography.sizes.sm,
+                  color: colors.textSecondary,
+                  fontFamily: typography.fontFamily.semibold,
+                  fontSize: typography.sizes.xs,
                 },
               ]}
             >
@@ -61,7 +62,7 @@ export function AppHeader({ title, subtitle, rightSlot }) {
           ) : null}
         </View>
       </View>
-      {rightSlot ? <View>{rightSlot}</View> : null}
+      {rightSlot ? <View style={styles.rightSlot}>{rightSlot}</View> : null}
     </View>
   );
 }
@@ -71,29 +72,45 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderWidth: 0.5,
     gap: 12,
+    minHeight: 76,
+    overflow: "hidden",
+    position: "relative",
+  },
+  brandRail: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 6,
   },
   left: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+    zIndex: 1,
   },
   logoWrap: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 14,
+    borderWidth: 1,
   },
   logo: {
-    width: 28,
-    height: 28,
+    width: 29,
+    height: 29,
   },
   title: {
-    fontWeight: "900",
+    letterSpacing: 0,
   },
   subtitle: {
     marginTop: 2,
-    fontWeight: "700",
+    letterSpacing: 0,
+  },
+  rightSlot: {
+    alignItems: "flex-end",
+    zIndex: 1,
   },
 });

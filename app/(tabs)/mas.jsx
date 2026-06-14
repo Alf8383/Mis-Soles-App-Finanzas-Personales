@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-nati
 
 import { AppHeader } from "../../src/components/layout/AppHeader";
 import { Screen } from "../../src/components/layout/Screen";
-import { Card, ConfirmDialog, MoneyText, PrimaryButton, TextField } from "../../src/components/ui";
+import { Card, ConfirmDialog, PrimaryButton, TextField } from "../../src/components/ui";
 import {
   useAccountsStore,
   useAuthFlowStore,
@@ -115,18 +115,15 @@ export default function MasScreen() {
           </Text>
         ) : null}
 
-        <Card style={{ marginTop: spacing.lg, backgroundColor: colors.primary }}>
+        <Card style={{ marginTop: spacing.md, backgroundColor: colors.primary }}>
           <View style={styles.profileRow}>
             <View style={[styles.avatar, { backgroundColor: "rgba(255,255,255,0.16)" }]}>
               <Ionicons name="person-outline" size={24} color={colors.surface} />
             </View>
             <View style={styles.profileCopy}>
-              <Text style={[styles.profileLabel, { color: "rgba(255,255,255,0.68)" }]}>Cuenta Mis Soles</Text>
+              <Text style={[styles.profileLabel, { color: "rgba(255,255,255,0.68)" }]}>Cuenta</Text>
               <Text style={[styles.profileEmail, { color: colors.surface, fontSize: typography.sizes.lg }]}>
                 {user?.email || profile?.email || "Usuario autenticado"}
-              </Text>
-              <Text style={[styles.profileMeta, { color: "rgba(255,255,255,0.68)" }]}>
-                Firebase Auth · {shortUid(user?.uid)}
               </Text>
             </View>
           </View>
@@ -150,17 +147,18 @@ export default function MasScreen() {
 
         <SectionTitle title="Preferencias" />
         <Card style={{ marginTop: spacing.sm }}>
-          <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
-            Privacidad visual
-          </Text>
-          <Text style={[styles.copy, { color: colors.textSecondary, fontSize: typography.sizes.md }]}>
-            Oculta montos en toda la app cuando necesites privacidad.
-          </Text>
-          <View style={[styles.summaryRow, { backgroundColor: colors.surfaceContainerLow, marginTop: spacing.md }]}>
-            <Text style={{ color: colors.textSecondary }}>
-              Estado: {hideAmounts ? "Activado" : "Desactivado"}
-            </Text>
-            <MoneyText amount={1240.5} currency="PEN" style={{ fontSize: typography.sizes.lg }} />
+          <View style={styles.preferenceHeader}>
+            <View style={[styles.settingIcon, { backgroundColor: colors.primarySoft, borderRadius: 14 }]}>
+              <Ionicons name={hideAmounts ? "eye-off-outline" : "eye-outline"} size={20} color={colors.primary} />
+            </View>
+            <View style={styles.settingCopy}>
+              <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
+                Privacidad visual
+              </Text>
+              <Text style={[styles.copy, { color: colors.textSecondary, fontSize: typography.sizes.sm }]}>
+                {hideAmounts ? "Los montos están ocultos en la app." : "Los montos están visibles en la app."}
+              </Text>
+            </View>
           </View>
           <PrimaryButton
             label={hideAmounts ? "Mostrar montos" : "Ocultar montos"}
@@ -170,12 +168,19 @@ export default function MasScreen() {
         </Card>
 
         <Card style={{ marginTop: spacing.md }}>
-          <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
-            Tipo de cambio manual
-          </Text>
-          <Text style={[styles.copy, { color: colors.textSecondary, fontSize: typography.sizes.md }]}>
-            Se usa para cálculos con PEN/USD cuando la app necesita una referencia.
-          </Text>
+          <View style={styles.preferenceHeader}>
+            <View style={[styles.settingIcon, { backgroundColor: colors.goldSoft, borderRadius: 14 }]}>
+              <Ionicons name="cash-outline" size={20} color={colors.gold} />
+            </View>
+            <View style={styles.settingCopy}>
+              <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
+                Tipo de cambio
+              </Text>
+              <Text style={[styles.copy, { color: colors.textSecondary, fontSize: typography.sizes.sm }]}>
+                Referencia manual para PEN/USD.
+              </Text>
+            </View>
+          </View>
           <TextField
             label="USD a PEN"
             value={exchangeRate}
@@ -191,12 +196,9 @@ export default function MasScreen() {
           />
         </Card>
 
-        <SectionTitle title="App y sesión" />
+        <SectionTitle title="Sesión" />
         <Card style={{ marginTop: spacing.sm }}>
-          <InfoRow label="Sesión" value={authStatus === "authenticated" ? "Activa" : authStatus} />
-          <InfoRow label="UID" value={shortUid(user?.uid)} />
           <InfoRow label="Email" value={user?.email || "No disponible"} />
-          <InfoRow label="Firestore" value={settings ? "Configurado" : "Pendiente de settings"} />
           <PrimaryButton
             label={isSigningOut ? "Cerrando sesión..." : "Cerrar sesión"}
             onPress={() => setConfirmSignOutVisible(true)}
@@ -258,11 +260,6 @@ function InfoRow({ label, value }) {
   );
 }
 
-function shortUid(uid) {
-  if (!uid) return "No disponible";
-  return `${uid.slice(0, 6)}…${uid.slice(-4)}`;
-}
-
 const styles = StyleSheet.create({
   avatar: {
     alignItems: "center",
@@ -283,7 +280,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   infoRow: {
-    borderRadius: 18,
+    borderRadius: 16,
     gap: 4,
     marginTop: 10,
     padding: 12,
@@ -304,11 +301,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 0.5,
     textTransform: "uppercase",
-  },
-  profileMeta: {
-    fontSize: 12,
-    fontWeight: "700",
-    marginTop: 4,
   },
   profileRow: {
     alignItems: "center",
@@ -340,19 +332,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     gap: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
   },
   settingTitle: {
     fontSize: 15,
     fontWeight: "900",
   },
-  summaryRow: {
-    borderRadius: 18,
-    gap: 6,
-    padding: 12,
-  },
   title: {
     fontWeight: "800",
-    marginBottom: 8,
+  },
+  preferenceHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 12,
   },
 });

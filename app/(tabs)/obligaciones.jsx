@@ -1,10 +1,11 @@
-import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AppHeader } from "../../src/components/layout/AppHeader";
 import { Screen } from "../../src/components/layout/Screen";
-import { Card, Chip, EmptyState, MoneyText, PrimaryButton, TextField } from "../../src/components/ui";
+import { DebtSection, FixedPaymentsSection, BudgetsSection } from "../../src/components/obligations/ObligationSections";
+import { Card } from "../../src/components/ui";
 import {
   BudgetPeriod,
   CategoryKind,
@@ -12,8 +13,6 @@ import {
   ObligationType,
   RecordStatus,
 } from "../../src/lib/domain/enums";
-import { fromMinorUnits } from "../../src/lib/domain/money";
-import { formatExchangeRateDate, normalizeDate } from "../../src/lib/utils";
 import {
   useAccountsStore,
   useAuthFlowStore,
@@ -32,7 +31,7 @@ const TABS = {
 };
 
 export default function ObligacionesScreen() {
-  const { colors, spacing, typography } = useAppTheme();
+  const { colors, spacing } = useAppTheme();
   const user = useAuthFlowStore((state) => state.user);
   const accounts = useAccountsStore((state) => state.accounts);
   const loadAccounts = useAccountsStore((state) => state.loadAccounts);
@@ -106,6 +105,8 @@ export default function ObligacionesScreen() {
       ),
     [obligationsStore.obligations],
   );
+  const pendingDebtCount = debtsIOwe.filter((debt) => debt.status === RecordStatus.ACTIVE).length +
+    debtsOwedToMe.filter((debt) => debt.status === RecordStatus.ACTIVE).length;
 
   async function refreshAll() {
     if (!user?.uid) return;
@@ -202,14 +203,18 @@ export default function ObligacionesScreen() {
     <Screen scrollable bottomInset={120}>
       <AppHeader title="Obligaciones" subtitle="Deudas, pagos fijos y presupuestos" />
 
-      <View style={[styles.filters, { marginTop: spacing.lg }]}>
-        <Chip label="Deudas" active={activeTab === TABS.DEBTS} onPress={() => setActiveTab(TABS.DEBTS)} />
-        <Chip label="Pagos fijos" active={activeTab === TABS.FIXED} onPress={() => setActiveTab(TABS.FIXED)} />
-        <Chip
-          label="Presupuestos"
-          active={activeTab === TABS.BUDGETS}
-          onPress={() => setActiveTab(TABS.BUDGETS)}
-        />
+      <Card style={{ marginTop: spacing.md, backgroundColor: colors.surfaceContainerLow }}>
+        <View style={styles.summaryGrid}>
+          <ObligationSummary label="Deudas activas" value={String(pendingDebtCount)} icon="people-outline" tone="gold" />
+          <ObligationSummary label="Pagos fijos" value={String(scheduledStore.scheduledPayments.length)} icon="calendar-outline" tone="primary" />
+          <ObligationSummary label="Presupuestos" value={String(budgetsStore.budgets.length)} icon="pie-chart-outline" tone="blue" />
+        </View>
+      </Card>
+
+      <View style={[styles.segmentedTabs, { backgroundColor: colors.surfaceContainerLow, marginTop: spacing.md }]}>
+        <TabButton label="Deudas" active={activeTab === TABS.DEBTS} onPress={() => setActiveTab(TABS.DEBTS)} />
+        <TabButton label="Pagos fijos" active={activeTab === TABS.FIXED} onPress={() => setActiveTab(TABS.FIXED)} />
+        <TabButton label="Presupuestos" active={activeTab === TABS.BUDGETS} onPress={() => setActiveTab(TABS.BUDGETS)} />
       </View>
 
       {isLoading ? <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.lg }} /> : null}
@@ -265,365 +270,111 @@ export default function ObligacionesScreen() {
       ) : null}
 
       {activeTab === TABS.FIXED ? (
-        <Card style={{ marginTop: spacing.md }}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
-              Próximos pagos fijos
-            </Text>
-            <Pressable onPress={() => router.push({ pathname: "/(modals)/nuevo-movimiento", params: { type: "fixed" } })}>
-              <Text style={[styles.link, { color: colors.primary }]}>Nuevo</Text>
-            </Pressable>
-          </View>
-          {scheduledStore.scheduledPayments.length === 0 ? (
-            <EmptyState
-              icon="calendar-outline"
-              title="Sin pagos fijos"
-              description="Crea pagos como internet, alquiler o suscripciones desde el botón Nuevo."
-            />
-          ) : (
-            scheduledStore.scheduledPayments.map((payment) => (
-              <View key={payment.id} style={[styles.itemBlock, { backgroundColor: colors.surfaceContainerLow }]}>
-                <View style={styles.itemRow}>
-                  <View style={styles.itemInfo}>
-                    <Text style={[styles.name, { color: colors.textPrimary }]}>{payment.name}</Text>
-                    <Text style={[styles.meta, { color: getUrgencyColor(payment.nextDueDate, colors) }]}>
-                      {getDueLabel(payment.nextDueDate)} · {payment.frequency === "weekly" ? "Semanal" : "Mensual"}
-                    </Text>
-                  </View>
-                  <MoneyText amount={fromMinorUnits(payment.amountMinor)} currency={payment.currency} />
-                </View>
-                <View style={styles.actionRow}>
-                  <PrimaryButton
-                    label={isSaving ? "Guardando..." : "Marcar pagado"}
-                    onPress={() => handleMarkFixedPaid(payment)}
-                    disabled={isSaving}
-                    style={styles.actionButton}
-                  />
-                  <Pressable onPress={() => scheduledStore.archiveScheduledPayment(user.uid, payment.id)}>
-                    <Text style={[styles.link, { color: colors.red }]}>Archivar</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ))
-          )}
-        </Card>
+        <FixedPaymentsSection
+          isSaving={isSaving}
+          onArchive={(payment) => scheduledStore.archiveScheduledPayment(user.uid, payment.id)}
+          onMarkPaid={handleMarkFixedPaid}
+          payments={scheduledStore.scheduledPayments}
+          spacing={spacing}
+        />
       ) : null}
 
       {activeTab === TABS.BUDGETS ? (
-        <>
-          <Card style={{ marginTop: spacing.md }}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
-              Nuevo presupuesto
-            </Text>
-            <Text style={[styles.meta, { color: colors.textSecondary }]}>Categoría</Text>
-            <View style={styles.filters}>
-              {expenseCategories.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={category.name}
-                  active={budgetDraft.categoryId === category.id}
-                  onPress={() => setBudgetDraft((draft) => ({ ...draft, categoryId: category.id }))}
-                />
-              ))}
-            </View>
-            <TextField
-              label="Límite"
-              value={budgetDraft.limit}
-              onChangeText={(limit) => setBudgetDraft((draft) => ({ ...draft, limit }))}
-              placeholder="0.00"
-              keyboardType="decimal-pad"
-            />
-            <Text style={[styles.meta, { color: colors.textSecondary }]}>Moneda</Text>
-            <View style={styles.filters}>
-              <Chip
-                label="PEN"
-                active={budgetDraft.currency === CurrencyCode.PEN}
-                onPress={() => setBudgetDraft((draft) => ({ ...draft, currency: CurrencyCode.PEN }))}
-              />
-              <Chip
-                label="USD"
-                active={budgetDraft.currency === CurrencyCode.USD}
-                onPress={() => setBudgetDraft((draft) => ({ ...draft, currency: CurrencyCode.USD }))}
-              />
-            </View>
-            <Text style={[styles.meta, { color: colors.textSecondary }]}>Periodo</Text>
-            <View style={styles.filters}>
-              <Chip
-                label="Mensual"
-                active={budgetDraft.period === BudgetPeriod.MONTHLY}
-                onPress={() => setBudgetDraft((draft) => ({ ...draft, period: BudgetPeriod.MONTHLY }))}
-              />
-              <Chip
-                label="Semanal"
-                active={budgetDraft.period === BudgetPeriod.WEEKLY}
-                onPress={() => setBudgetDraft((draft) => ({ ...draft, period: BudgetPeriod.WEEKLY }))}
-              />
-            </View>
-            <TextField
-              label="Umbral de alerta"
-              value={budgetDraft.alertThreshold}
-              onChangeText={(alertThreshold) => setBudgetDraft((draft) => ({ ...draft, alertThreshold }))}
-              placeholder="80"
-              keyboardType="number-pad"
-            />
-            <PrimaryButton
-              label={isSaving ? "Guardando..." : "Guardar presupuesto"}
-              onPress={handleCreateBudget}
-              disabled={isSaving}
-              style={{ marginTop: spacing.md }}
-            />
-          </Card>
-          <Card style={{ marginTop: spacing.md }}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
-              Presupuestos activos
-            </Text>
-            {budgetsStore.budgets.length === 0 ? (
-              <EmptyState
-                icon="pie-chart-outline"
-                title="Sin presupuestos"
-                description="Define un límite por categoría para ver alertas por color."
-              />
-            ) : (
-              budgetsStore.budgets.map((budget) => (
-                <BudgetRow
-                  budget={budget}
-                  category={categories.find((category) => category.id === budget.categoryId)}
-                  colors={colors}
-                  key={budget.id}
-                  onArchive={() => budgetsStore.archiveBudget(user.uid, budget.id)}
-                />
-              ))
-            )}
-          </Card>
-        </>
+        <BudgetsSection
+          budgetDraft={budgetDraft}
+          budgets={budgetsStore.budgets}
+          categories={categories}
+          expenseCategories={expenseCategories}
+          isSaving={isSaving}
+          onArchive={(budget) => budgetsStore.archiveBudget(user.uid, budget.id)}
+          onCreate={handleCreateBudget}
+          setBudgetDraft={setBudgetDraft}
+          spacing={spacing}
+        />
       ) : null}
     </Screen>
   );
 }
 
-function DebtSection({
-  accounts,
-  categories,
-  debts,
-  isSaving,
-  onArchive,
-  onPayInFull,
-  onPartialPayment,
-  onSelectPayment,
-  paymentDraft,
-  setPaymentDraft,
-  spacing,
-  title,
-}) {
-  const { colors, typography } = useAppTheme();
+function TabButton({ active, label, onPress }) {
+  const { colors } = useAppTheme();
 
   return (
-    <Card style={{ marginTop: spacing.md }}>
-      <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
-          {title}
-        </Text>
-        <Pressable onPress={() => router.push({ pathname: "/(modals)/nuevo-movimiento", params: { type: "debt" } })}>
-          <Text style={[styles.link, { color: colors.primary }]}>Nueva</Text>
-        </Pressable>
-      </View>
-      {debts.length === 0 ? (
-        <EmptyState icon="people-outline" title="Sin deudas" description="Cuando registres una deuda aparecerá aquí." />
-      ) : (
-        debts.map((obligation) => (
-          <View key={obligation.id} style={[styles.itemBlock, { backgroundColor: colors.surfaceContainerLow }]}>
-            <View style={styles.itemRow}>
-              <View style={styles.itemInfo}>
-                <Text style={[styles.name, { color: colors.textPrimary }]}>{obligation.personName}</Text>
-                <Text style={[styles.meta, { color: getUrgencyColor(obligation.dueDate, colors) }]}>
-                  {getDueLabel(obligation.dueDate)}
-                </Text>
-              </View>
-              <MoneyText
-                amount={fromMinorUnits(obligation.pendingAmountMinor)}
-                currency={obligation.currency}
-                tone={obligation.status === RecordStatus.PAID ? "positive" : "default"}
-              />
-            </View>
-            {paymentDraft.obligationId === obligation.id ? (
-              <View style={{ marginTop: spacing.md }}>
-                <TextField
-                  label="Abono"
-                  value={paymentDraft.amount}
-                  onChangeText={(amount) => setPaymentDraft((draft) => ({ ...draft, amount }))}
-                  placeholder="0.00"
-                  keyboardType="decimal-pad"
-                />
-                <Text style={[styles.meta, { color: colors.textSecondary }]}>Cuenta</Text>
-                <View style={styles.filters}>
-                  {accounts.map((account) => (
-                    <Chip
-                      key={account.id}
-                      label={account.name}
-                      active={paymentDraft.accountId === account.id}
-                      onPress={() => setPaymentDraft((draft) => ({ ...draft, accountId: account.id }))}
-                    />
-                  ))}
-                </View>
-                <Text style={[styles.meta, { color: colors.textSecondary }]}>Categoría</Text>
-                <View style={styles.filters}>
-                  {categories.map((category) => (
-                    <Chip
-                      key={category.id}
-                      label={category.name}
-                      active={paymentDraft.categoryId === category.id}
-                      onPress={() => setPaymentDraft((draft) => ({ ...draft, categoryId: category.id }))}
-                    />
-                  ))}
-                </View>
-                <PrimaryButton
-                  label={isSaving ? "Guardando..." : "Guardar abono"}
-                  onPress={() => onPartialPayment(obligation)}
-                  disabled={isSaving}
-                  style={{ marginTop: spacing.md }}
-                />
-              </View>
-            ) : null}
-            {obligation.status === RecordStatus.ACTIVE ? (
-              <View style={styles.actionRow}>
-                <Pressable onPress={() => onSelectPayment(obligation)}>
-                  <Text style={[styles.link, { color: colors.primary }]}>Abonar</Text>
-                </Pressable>
-                <Pressable onPress={() => onPayInFull(obligation)}>
-                  <Text style={[styles.link, { color: colors.primaryMuted }]}>Pago total</Text>
-                </Pressable>
-                <Pressable onPress={() => onArchive(obligation)}>
-                  <Text style={[styles.link, { color: colors.red }]}>Archivar</Text>
-                </Pressable>
-              </View>
-            ) : (
-              <Text style={[styles.meta, { color: colors.primaryMuted, marginTop: spacing.sm }]}>Pagada</Text>
-            )}
-          </View>
-        ))
-      )}
-    </Card>
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.tabButton,
+        {
+          backgroundColor: active ? colors.primary : "transparent",
+          opacity: pressed ? 0.86 : 1,
+        },
+      ]}
+    >
+      <Text style={[styles.tabButtonText, { color: active ? colors.surface : colors.textSecondary }]}>{label}</Text>
+    </Pressable>
   );
 }
 
-function BudgetRow({ budget, category, colors, onArchive }) {
-  const progressColor =
-    budget.progress >= 100 ? colors.red : budget.progress >= Number(budget.alertThreshold || 80) ? colors.gold : colors.primary;
+function ObligationSummary({ icon, label, tone, value }) {
+  const { colors } = useAppTheme();
+  const toneColor = tone === "gold" ? colors.gold : tone === "blue" ? colors.blue : colors.primary;
+  const toneBg = tone === "gold" ? colors.goldSoft : tone === "blue" ? colors.blueSoft : colors.primarySoft;
 
   return (
-    <View style={[styles.itemBlock, { backgroundColor: colors.surfaceContainerLow }]}>
-      <View style={styles.itemRow}>
-        <View style={styles.itemInfo}>
-          <Text style={[styles.name, { color: colors.textPrimary }]}>{category?.name || "Categoría"}</Text>
-          <Text style={[styles.meta, { color: colors.textSecondary }]}>
-            {budget.period === BudgetPeriod.WEEKLY ? "Semanal" : "Mensual"} · alerta {budget.alertThreshold}%
-          </Text>
-        </View>
-        <Text style={[styles.percent, { color: progressColor }]}>{budget.progress}%</Text>
+    <View style={styles.summaryItem}>
+      <View style={[styles.summaryIcon, { backgroundColor: toneBg }]}>
+        <Ionicons name={icon} size={17} color={toneColor} />
       </View>
-      <View style={[styles.progressTrack, { backgroundColor: colors.background }]}>
-        <View style={[styles.progressFill, { backgroundColor: progressColor, width: `${Math.min(100, budget.progress)}%` }]} />
-      </View>
-      <View style={styles.itemRow}>
-        <MoneyText amount={fromMinorUnits(budget.spentMinor)} currency={budget.currency} />
-        <Text style={[styles.meta, { color: colors.textSecondary }]}>
-          de {fromMinorUnits(budget.limitMinor).toFixed(2)} {budget.currency}
-        </Text>
-      </View>
-      <Pressable onPress={onArchive} style={styles.archiveLink}>
-        <Text style={[styles.link, { color: colors.red }]}>Archivar</Text>
-      </Pressable>
+      <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>{value}</Text>
+      <Text style={[styles.summaryLabel, { color: colors.textSecondary }]} numberOfLines={1}>{label}</Text>
     </View>
   );
 }
 
-function getDueLabel(value) {
-  if (!value) return "Sin vencimiento";
-  return `Vence ${formatExchangeRateDate(normalizeDate(value))}`;
-}
-
-function getUrgencyColor(value, colors) {
-  if (!value) return colors.textSecondary;
-  const dueDate = normalizeDate(value);
-  const diffDays = Math.ceil((dueDate.getTime() - Date.now()) / 86400000);
-
-  if (diffDays < 0) return colors.red;
-  if (diffDays <= 3) return colors.gold;
-  return colors.textSecondary;
-}
-
 const styles = StyleSheet.create({
-  actionButton: {
-    flex: 1,
-  },
-  actionRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 14,
-    marginTop: 12,
-  },
-  archiveLink: {
-    alignSelf: "flex-start",
-    marginTop: 10,
-  },
   error: {
     fontWeight: "700",
     lineHeight: 20,
   },
-  filters: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 8,
-  },
-  itemBlock: {
+  segmentedTabs: {
     borderRadius: 18,
-    padding: 14,
-    marginTop: 14,
-  },
-  itemInfo: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  itemRow: {
-    alignItems: "center",
     flexDirection: "row",
-    justifyContent: "space-between",
+    gap: 4,
+    padding: 4,
   },
-  link: {
-    fontSize: 13,
+  summaryGrid: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  summaryIcon: {
+    alignItems: "center",
+    borderRadius: 12,
+    height: 32,
+    justifyContent: "center",
+    width: 32,
+  },
+  summaryItem: {
+    flex: 1,
+    gap: 3,
+  },
+  summaryLabel: {
+    fontSize: 10,
     fontWeight: "800",
   },
-  meta: {
-    fontSize: 12,
-    fontWeight: "700",
-    marginTop: 4,
-  },
-  name: {
-    fontSize: 15,
-    fontWeight: "800",
-  },
-  percent: {
-    fontSize: 18,
+  summaryValue: {
+    fontSize: 16,
     fontWeight: "900",
   },
-  progressFill: {
-    borderRadius: 999,
-    height: 8,
-  },
-  progressTrack: {
-    borderRadius: 999,
-    height: 8,
-    marginVertical: 10,
-    overflow: "hidden",
-  },
-  sectionHeader: {
+  tabButton: {
     alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
+    borderRadius: 15,
+    flex: 1,
+    justifyContent: "center",
+    minHeight: 38,
   },
-  sectionTitle: {
-    fontWeight: "800",
+  tabButtonText: {
+    fontSize: 12,
+    fontWeight: "900",
   },
 });

@@ -3,8 +3,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { DebtForm, FixedPaymentForm, MovementForm } from "../../src/components/forms/NuevoMovimientoForms";
 import { Screen } from "../../src/components/layout/Screen";
-import { Card, Chip, EmptyState, PrimaryButton, TextField } from "../../src/components/ui";
+import { Card, PrimaryButton } from "../../src/components/ui";
 import {
   CategoryKind,
   CurrencyCode,
@@ -83,6 +84,7 @@ export default function NuevoMovimientoModal() {
   const [toAccountId, setToAccountId] = useState("");
   const [exchangeRate, setExchangeRate] = useState("");
   const [fee, setFee] = useState("");
+  // Si en clase piden agregar un campo al formulario, normalmente empieza con un useState aqui.
   const [formError, setFormError] = useState("");
   const isAuxType = movementType === "debt" || movementType === "fixed";
   const isSaving =
@@ -110,8 +112,10 @@ export default function NuevoMovimientoModal() {
     return categories.filter((category) => category.kind === kind);
   }, [categories, movementType]);
   const selectedAccount = accounts.find((account) => account.id === accountId);
+  const selectedFixedAccount = accounts.find((account) => account.id === accountId);
   const fromAccount = accounts.find((account) => account.id === fromAccountId);
   const toAccount = accounts.find((account) => account.id === toAccountId);
+  const selectedFixedCategory = filteredCategories.find((category) => category.id === categoryId);
   const requiresExchangeRate =
     movementType === MovementType.TRANSFER &&
     fromAccount &&
@@ -158,6 +162,8 @@ export default function NuevoMovimientoModal() {
       return;
     }
 
+    // La pantalla solo arma los datos del formulario; el store y el repositorio se encargan de guardarlos.
+    // Para guardar un campo nuevo, agregalo en este objeto y despues leelo en el repositorio.
     const values =
       movementType === MovementType.TRANSFER
         ? {
@@ -180,6 +186,7 @@ export default function NuevoMovimientoModal() {
             type: movementType,
           };
 
+    // Aqui empieza el camino hacia la BD: pantalla -> store -> repositorio -> Firestore.
     const result = await createMovement(user.uid, values);
 
     if (!result.error) {
@@ -196,6 +203,7 @@ export default function NuevoMovimientoModal() {
       return;
     }
 
+    // Este payload viaja al store de obligaciones y luego al repositorio de Firestore.
     const result = await createObligation(user.uid, {
       amount,
       currency,
@@ -225,6 +233,7 @@ export default function NuevoMovimientoModal() {
       return;
     }
 
+    // Los pagos fijos se guardan como programación; el saldo cambia recién al marcarlos como pagados.
     const result = await createScheduledPayment(user.uid, {
       accountId,
       amount,
@@ -263,178 +272,67 @@ export default function NuevoMovimientoModal() {
 
       <Card style={{ marginTop: spacing.lg }}>
         {movementType === "debt" ? (
-          <>
-            <TextField
-              label="Persona"
-              value={personName}
-              onChangeText={setPersonName}
-              placeholder="Ej. Ana, Carlos, mamá"
-            />
-            <TextField
-              label="Monto"
-              value={amount}
-              onChangeText={setAmount}
-              placeholder="0.00"
-              keyboardType="decimal-pad"
-            />
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Dirección
-            </Text>
-            <View style={styles.chipRow}>
-              <Chip
-                label="Yo debo"
-                active={debtDirection === ObligationType.DEBT_I_OWE}
-                onPress={() => setDebtDirection(ObligationType.DEBT_I_OWE)}
-              />
-              <Chip
-                label="Me deben"
-                active={debtDirection === ObligationType.DEBT_OWED_TO_ME}
-                onPress={() => setDebtDirection(ObligationType.DEBT_OWED_TO_ME)}
-              />
-            </View>
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Moneda
-            </Text>
-            <View style={styles.chipRow}>
-              <Chip label="PEN" active={currency === CurrencyCode.PEN} onPress={() => setCurrency(CurrencyCode.PEN)} />
-              <Chip label="USD" active={currency === CurrencyCode.USD} onPress={() => setCurrency(CurrencyCode.USD)} />
-            </View>
-            <TextField
-              label="Vence el (opcional)"
-              value={dueDate}
-              onChangeText={setDueDate}
-              placeholder="YYYY-MM-DD"
-            />
-            <TextField
-              label="Nota"
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Ej. Préstamo para emergencia"
-            />
-          </>
+          <DebtForm
+            amount={amount}
+            currency={currency}
+            debtDirection={debtDirection}
+            description={description}
+            dueDate={dueDate}
+            personName={personName}
+            setAmount={setAmount}
+            setCurrency={setCurrency}
+            setDebtDirection={setDebtDirection}
+            setDescription={setDescription}
+            setDueDate={setDueDate}
+            setPersonName={setPersonName}
+          />
         ) : null}
 
         {movementType === "fixed" ? (
-          <>
-            <TextField
-              label="Nombre"
-              value={fixedName}
-              onChangeText={setFixedName}
-              placeholder="Ej. Internet, alquiler, gimnasio"
-            />
-            <TextField
-              label="Monto"
-              value={amount}
-              onChangeText={setAmount}
-              placeholder="0.00"
-              keyboardType="decimal-pad"
-            />
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Cuenta
-            </Text>
-            <AccountPicker accounts={accounts} selectedId={accountId} onSelect={setAccountId} />
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Categoría
-            </Text>
-            <View style={styles.chipRow}>
-              {filteredCategories.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={category.name}
-                  active={categoryId === category.id}
-                  onPress={() => setCategoryId(category.id)}
-                />
-              ))}
-            </View>
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Frecuencia
-            </Text>
-            <View style={styles.chipRow}>
-              <Chip
-                label="Mensual"
-                active={frequency === ScheduledPaymentFrequency.MONTHLY}
-                onPress={() => setFrequency(ScheduledPaymentFrequency.MONTHLY)}
-              />
-              <Chip
-                label="Semanal"
-                active={frequency === ScheduledPaymentFrequency.WEEKLY}
-                onPress={() => setFrequency(ScheduledPaymentFrequency.WEEKLY)}
-              />
-            </View>
-            <TextField
-              label="Próximo vencimiento"
-              value={nextDueDate}
-              onChangeText={setNextDueDate}
-              placeholder="YYYY-MM-DD"
-            />
-          </>
+          <FixedPaymentForm
+            accounts={accounts}
+            amount={amount}
+            categoryId={categoryId}
+            fixedName={fixedName}
+            frequency={frequency}
+            nextDueDate={nextDueDate}
+            selectedAccountId={accountId}
+            selectedCategory={selectedFixedCategory}
+            selectedCurrency={selectedFixedAccount?.currency || CurrencyCode.PEN}
+            categories={filteredCategories}
+            setAccountId={setAccountId}
+            setAmount={setAmount}
+            setCategoryId={setCategoryId}
+            setFixedName={setFixedName}
+            setFrequency={setFrequency}
+            setNextDueDate={setNextDueDate}
+          />
         ) : null}
 
         {!isAuxType ? (
-          <>
-            <TextField
-              label="Monto"
-              value={amount}
-              onChangeText={setAmount}
-              placeholder="0.00"
-              keyboardType="decimal-pad"
-            />
-            <TextField
-              label="Descripción"
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Ej. Mercado, sueldo, transferencia"
-            />
-          </>
-        ) : null}
-
-        {movementType === MovementType.TRANSFER ? (
-          <>
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Cuenta origen
-            </Text>
-            <AccountPicker accounts={accounts} selectedId={fromAccountId} onSelect={setFromAccountId} />
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Cuenta destino
-            </Text>
-            <AccountPicker accounts={accounts} selectedId={toAccountId} onSelect={setToAccountId} />
-            {requiresExchangeRate ? (
-              <TextField
-                label="Tipo de cambio"
-                value={exchangeRate}
-                onChangeText={setExchangeRate}
-                placeholder="Ej. 3.75"
-                keyboardType="decimal-pad"
-              />
-            ) : null}
-            <TextField
-              label="Comisión opcional"
-              value={fee}
-              onChangeText={setFee}
-              placeholder="0.00"
-              keyboardType="decimal-pad"
-            />
-          </>
-        ) : !isAuxType ? (
-          <>
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Cuenta
-            </Text>
-            <AccountPicker accounts={accounts} selectedId={accountId} onSelect={setAccountId} />
-            <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: spacing.md }]}>
-              Categoría
-            </Text>
-            <View style={styles.chipRow}>
-              {filteredCategories.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={category.name}
-                  active={categoryId === category.id}
-                  onPress={() => setCategoryId(category.id)}
-                />
-              ))}
-            </View>
-          </>
+          // Las props conectan el estado de esta pantalla con los campos visibles del formulario.
+          <MovementForm
+            accountId={accountId}
+            accounts={accounts}
+            amount={amount}
+            categoryId={categoryId}
+            categories={filteredCategories}
+            description={description}
+            exchangeRate={exchangeRate}
+            fee={fee}
+            fromAccountId={fromAccountId}
+            movementType={movementType}
+            requiresExchangeRate={requiresExchangeRate}
+            setAccountId={setAccountId}
+            setAmount={setAmount}
+            setCategoryId={setCategoryId}
+            setDescription={setDescription}
+            setExchangeRate={setExchangeRate}
+            setFee={setFee}
+            setFromAccountId={setFromAccountId}
+            setToAccountId={setToAccountId}
+            toAccountId={toAccountId}
+          />
         ) : null}
 
         {formError || movementError || obligationError || scheduledPaymentError ? (
@@ -453,22 +351,6 @@ export default function NuevoMovimientoModal() {
     </Screen>
   );
 }
-
-function AccountPicker({ accounts, selectedId, onSelect }) {
-  return (
-    <View style={styles.chipRow}>
-      {accounts.map((account) => (
-        <Chip
-          key={account.id}
-          label={`${account.name} · ${account.currency}`}
-          active={selectedId === account.id}
-          onPress={() => onSelect(account.id)}
-        />
-      ))}
-    </View>
-  );
-}
-
 function normalizeMovementType(type) {
   if (type === MovementType.INCOME) return MovementType.INCOME;
   if (type === MovementType.TRANSFER) return MovementType.TRANSFER;
@@ -574,16 +456,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 21,
-  },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: "700",
-    marginBottom: 8,
-  },
-  chipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
   },
   error: {
     fontWeight: "700",

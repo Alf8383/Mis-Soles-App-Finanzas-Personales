@@ -1,15 +1,54 @@
+import { Ionicons } from "@expo/vector-icons";
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+} from "@expo-google-fonts/plus-jakarta-sans";
+import { useFonts } from "expo-font";
 import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { runMigrations } from "../src/lib/db/migrate";
 import { AppProviders } from "../src/providers/AppProviders";
 import { useAuthFlowStore, useOnboardingStore } from "../src/stores";
 
+const defaultTextStyle = { fontFamily: "PlusJakartaSans_400Regular" };
+
+Text.defaultProps = Text.defaultProps || {};
+Text.defaultProps.style = [defaultTextStyle, Text.defaultProps.style];
+TextInput.defaultProps = TextInput.defaultProps || {};
+TextInput.defaultProps.style = [defaultTextStyle, TextInput.defaultProps.style];
+
+if (typeof document !== "undefined" && !document.getElementById("mis-soles-font")) {
+  const style = document.createElement("style");
+  style.id = "mis-soles-font";
+  style.textContent = `
+    [dir="auto"]:not([style*="PlusJakartaSans"]):not([style*="ionicons"]):not([style*="MaterialIcons"]):not([style*="MaterialCommunityIcons"]):not([style*="Feather"]):not([style*="FontAwesome"]) {
+      font-family: PlusJakartaSans_400Regular, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    input,
+    textarea {
+      font-family: PlusJakartaSans_400Regular, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(null);
+  const [fontsLoaded] = useFonts({
+    ...Ionicons.font,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -43,7 +82,7 @@ export default function RootLayout() {
   return (
     <AppProviders>
       <StatusBar style="dark" />
-      {!ready ? (
+      {!ready || !fontsLoaded ? (
         <View style={styles.loadingState}>
           <ActivityIndicator size="large" color="#005440" />
           <Text style={styles.loadingTitle}>Preparando Mis Soles</Text>

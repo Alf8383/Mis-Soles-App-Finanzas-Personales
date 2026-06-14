@@ -7,6 +7,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
+import { DEFAULT_CATEGORY_ICON } from "../../domain/category-icons";
 import { CategoryKind, RecordStatus } from "../../domain/enums";
 import { getUserCategories, getUserCategory } from "../paths";
 
@@ -26,7 +27,7 @@ export async function createCategory(uid, values) {
   const categoryRef = await addDoc(getUserCategories(uid), {
     color: values.color || "#855400",
     createdAt: now,
-    icon: values.icon || "🏷️",
+    icon: values.icon || DEFAULT_CATEGORY_ICON,
     isDefault: false,
     kind: values.kind || CategoryKind.EXPENSE,
     name: values.name.trim(),

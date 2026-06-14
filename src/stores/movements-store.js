@@ -38,6 +38,8 @@ export const useMovementsStore = create((set, get) => ({
     set({ error: "", status: "saving" });
 
     try {
+      // El store coordina el guardado y refresca la lista para que la pantalla no hable directo con Firebase.
+      // Si agregaste un campo nuevo en el formulario, debe venir dentro de values.
       const movementId = await createMovement(uid, values);
       await get().loadMovements(uid);
       set({ status: "ready" });

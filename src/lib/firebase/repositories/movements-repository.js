@@ -25,6 +25,7 @@ function assertUid(uid) {
 }
 
 function normalizeMovementInput(values) {
+  // Firestore guarda dinero en centimos para evitar errores de decimales.
   return {
     ...values,
     amountMinor: toMinorUnits(values.amount),
@@ -47,6 +48,7 @@ export async function createMovement(uid, values) {
   assertUid(uid);
   const normalized = normalizeMovementInput(values);
 
+  // Transferencias e ingresos/gastos afectan cuentas de formas distintas.
   if (normalized.type === MovementType.TRANSFER) {
     return createTransfer(uid, normalized);
   }
@@ -75,6 +77,7 @@ async function createIncomeOrExpense(uid, values) {
       currency: values.currency,
       date: values.date,
       description: values.description?.trim() || "",
+      // Para guardar un campo nuevo en Firestore, agregalo aqui usando values.nombreDelCampo.
       status: RecordStatus.ACTIVE,
       type: values.type,
       updatedAt: now,
@@ -120,6 +123,7 @@ async function createTransfer(uid, values) {
       currency: fromAccount.currency,
       date: values.date,
       description: values.description?.trim() || "",
+      // Si una transferencia tambien necesita un campo nuevo, se agrega en este documento.
       exchangeRate,
       feeMinor: values.feeMinor,
       fromAccountId: values.fromAccountId,

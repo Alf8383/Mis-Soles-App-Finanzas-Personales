@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
@@ -15,6 +16,7 @@ import {
   TextField,
 } from "../../src/components/ui";
 import { fromMinorUnits } from "../../src/lib/domain/money";
+import { getCategoryIconName } from "../../src/lib/domain/category-icons";
 import { QUICK_FILTERS } from "../../src/lib/constants/quickFilters";
 import { getMovementDateLabel } from "../../src/lib/utils";
 import {
@@ -78,6 +80,7 @@ export default function MovimientosScreen() {
     });
   }, [categoryById, movements, query, quickFilter]);
   const groups = groupMovementsByDate(filteredMovements);
+  const filteredTotals = useMemo(() => getMovementTotals(filteredMovements), [filteredMovements]);
   const isLoading = status === "loading";
 
   function handleQuickAction(type) {
@@ -104,7 +107,15 @@ export default function MovimientosScreen() {
       <Screen scrollable bottomInset={120}>
         <AppHeader title="Movimientos" subtitle="Registro y filtros rápidos" />
 
-        <View style={{ marginTop: spacing.lg }}>
+        <Card style={{ marginTop: spacing.md, backgroundColor: colors.surfaceContainerLow }}>
+          <View style={styles.summaryRow}>
+            <SummaryMetric label="Registros" value={String(filteredMovements.length)} tone="default" />
+            <SummaryMetric label="Ingresos" value={`S/ ${filteredTotals.income.toFixed(2)}`} tone="positive" />
+            <SummaryMetric label="Gastos" value={`S/ ${filteredTotals.expense.toFixed(2)}`} tone="negative" />
+          </View>
+        </Card>
+
+        <View style={{ marginTop: spacing.md }}>
           <TextField
             label="Buscar"
             value={query}
@@ -148,8 +159,14 @@ export default function MovimientosScreen() {
               >
                 {group.label}
               </Text>
-              {group.items.map((movement) => (
-                <View key={movement.id} style={[styles.itemRow, { marginTop: spacing.md }]}>
+              {group.items.map((movement) => {
+                const category = categoryById[movement.categoryId];
+
+                return (
+                <View key={movement.id} style={[styles.itemRow, { backgroundColor: colors.surfaceContainerLow, marginTop: spacing.sm }]}>
+                  <View style={[styles.itemIcon, { backgroundColor: getMovementToneBackground(movement, colors) }]}>
+                    <Ionicons name={getMovementIcon(movement, category)} size={18} color={getMovementTone(movement, colors)} />
+                  </View>
                   <View style={styles.itemCopy}>
                     <Text style={[styles.itemName, { color: colors.textPrimary }]}>
                       {movement.description || movement.type}
@@ -164,12 +181,17 @@ export default function MovimientosScreen() {
                       currency={movement.currency || "PEN"}
                       type={movement.type}
                     />
-                    <Pressable onPress={() => setArchiveTarget(movement)}>
-                      <Text style={[styles.deleteAction, { color: colors.red }]}>Eliminar</Text>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Eliminar movimiento"
+                      onPress={() => setArchiveTarget(movement)}
+                      style={[styles.deleteButton, { backgroundColor: colors.redSoft }]}
+                    >
+                      <Ionicons name="trash-outline" size={15} color={colors.red} />
                     </Pressable>
                   </View>
                 </View>
-              ))}
+              )})}
             </Card>
           ))
         )}
@@ -192,6 +214,20 @@ export default function MovimientosScreen() {
         onConfirm={handleArchive}
       />
     </>
+  );
+}
+
+function SummaryMetric({ label, tone, value }) {
+  const { colors } = useAppTheme();
+  const textColor = tone === "positive" ? colors.primary : tone === "negative" ? colors.red : colors.textPrimary;
+
+  return (
+    <View style={styles.summaryMetric}>
+      <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>{label}</Text>
+      <Text style={[styles.summaryValue, { color: textColor }]} numberOfLines={1}>
+        {value}
+      </Text>
+    </View>
   );
 }
 
@@ -227,6 +263,37 @@ function getSignedMovementAmount(movement) {
   return amount;
 }
 
+function getMovementTotals(movements) {
+  return movements.reduce(
+    (totals, movement) => {
+      const amount = fromMinorUnits(movement.amountMinor);
+      if (movement.type === "income") totals.income += amount;
+      if (movement.type === "expense" || movement.type === "fee") totals.expense += amount;
+      return totals;
+    },
+    { expense: 0, income: 0 },
+  );
+}
+
+function getMovementIcon(movement, category) {
+  if (category?.icon) return getCategoryIconName(category.icon);
+  if (movement.type === "income") return "arrow-down-circle-outline";
+  if (movement.type === "transfer") return "swap-horizontal-outline";
+  return "arrow-up-circle-outline";
+}
+
+function getMovementTone(movement, colors) {
+  if (movement.type === "income") return colors.primary;
+  if (movement.type === "transfer") return colors.blue;
+  return colors.red;
+}
+
+function getMovementToneBackground(movement, colors) {
+  if (movement.type === "income") return colors.primarySoft;
+  if (movement.type === "transfer") return colors.blueSoft;
+  return colors.redSoft;
+}
+
 function isCurrentMonth(input) {
   const date = input?.toDate ? input.toDate() : new Date(input);
   const now = new Date();
@@ -249,12 +316,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
+    borderRadius: 16,
+    padding: 10,
   },
   itemCopy: {
     flex: 1,
   },
   itemName: {
-    fontWeight: "700",
+    fontWeight: "900",
   },
   itemMeta: {
     fontSize: 13,
@@ -262,13 +331,39 @@ const styles = StyleSheet.create({
   },
   amountColumn: {
     alignItems: "flex-end",
+    gap: 6,
   },
-  deleteAction: {
-    fontSize: 12,
-    fontWeight: "700",
-    marginTop: 4,
+  deleteButton: {
+    alignItems: "center",
+    borderRadius: 12,
+    height: 28,
+    justifyContent: "center",
+    width: 28,
   },
   error: {
     fontWeight: "700",
+  },
+  itemIcon: {
+    alignItems: "center",
+    borderRadius: 14,
+    height: 38,
+    justifyContent: "center",
+    width: 38,
+  },
+  summaryLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+  },
+  summaryMetric: {
+    flex: 1,
+    gap: 4,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  summaryValue: {
+    fontSize: 14,
+    fontWeight: "900",
   },
 });

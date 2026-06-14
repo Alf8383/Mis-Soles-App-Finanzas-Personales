@@ -13,7 +13,7 @@ export function Card({ children, style }) {
           backgroundColor: colors.surfaceContainerLowest,
           borderColor: colors.border,
           borderRadius: radii.lg,
-          padding: spacing.lg,
+          padding: spacing.md,
         },
         shadows.card,
         style,

@@ -24,7 +24,7 @@ export function MainTabBar({ state, descriptors, navigation }) {
         {
           backgroundColor: colors.tabBar,
           borderColor: colors.border,
-          borderRadius: radii.xl,
+          borderRadius: radii.lg,
           marginBottom: spacing.xs,
           marginHorizontal: spacing.md,
           paddingBottom: Math.max(insets.bottom, spacing.xs),
@@ -62,14 +62,14 @@ export function MainTabBar({ state, descriptors, navigation }) {
               styles.item,
               {
                 backgroundColor: focused ? colors.primarySoft : "transparent",
-                borderRadius: radii.lg,
+                borderRadius: radii.md,
                 opacity: pressed ? 0.86 : 1,
               },
             ]}
           >
             <Ionicons
               name={iconName}
-              size={21}
+              size={20}
               color={focused ? colors.primary : colors.textTertiary}
             />
             <Text
@@ -95,17 +95,17 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     borderWidth: 0.5,
     maxWidth: 780,
-    minHeight: 70,
-    paddingHorizontal: 6,
-    paddingTop: 6,
+    minHeight: 66,
+    paddingHorizontal: 7,
+    paddingTop: 7,
     width: "100%",
   },
   item: {
     flex: 1,
-    minHeight: 54,
+    minHeight: 50,
     alignItems: "center",
     justifyContent: "center",
-    gap: 3,
+    gap: 2,
   },
   label: {
     fontSize: 10,

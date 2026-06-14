@@ -1,17 +1,10 @@
-import { Platform } from "react-native";
-
-const systemSans = Platform.select({
-  ios: "System",
-  android: "sans-serif",
-  default: "System",
-});
-
 export const typography = {
   fontFamily: {
-    regular: systemSans,
-    medium: systemSans,
-    semibold: systemSans,
-    bold: systemSans,
+    regular: "PlusJakartaSans_400Regular",
+    medium: "PlusJakartaSans_500Medium",
+    semibold: "PlusJakartaSans_600SemiBold",
+    bold: "PlusJakartaSans_700Bold",
+    extraBold: "PlusJakartaSans_800ExtraBold",
   },
   sizes: {
     xs: 11,

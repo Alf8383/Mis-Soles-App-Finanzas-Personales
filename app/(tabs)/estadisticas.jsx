@@ -1,9 +1,12 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AppHeader } from "../../src/components/layout/AppHeader";
 import { Screen } from "../../src/components/layout/Screen";
 import { Card, Chip, EmptyState, MoneyText } from "../../src/components/ui";
+import { getCategoryIconName } from "../../src/lib/domain/category-icons";
 import { useAuthFlowStore, useStatisticsStore } from "../../src/stores";
 import { useAppTheme } from "../../src/theme";
 
@@ -51,8 +54,11 @@ export default function EstadisticasScreen() {
       ) : null}
 
       <View style={[styles.statsGrid, { marginTop: spacing.lg }]}>
-        <Card style={styles.statCard}>
-          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Ingresos</Text>
+        <Card style={[styles.statCard, { backgroundColor: colors.primarySoft }]}>
+          <View style={styles.statHeader}>
+            <Ionicons name="arrow-down-circle-outline" size={18} color={colors.primary} />
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Ingresos</Text>
+          </View>
           <MoneyText
             amount={statistics.income}
             currency="PEN"
@@ -60,8 +66,11 @@ export default function EstadisticasScreen() {
             style={[styles.statValue, { fontSize: typography.sizes.md }]}
           />
         </Card>
-        <Card style={styles.statCard}>
-          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Gastos</Text>
+        <Card style={[styles.statCard, { backgroundColor: colors.redSoft }]}>
+          <View style={styles.statHeader}>
+            <Ionicons name="arrow-up-circle-outline" size={18} color={colors.red} />
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Gastos</Text>
+          </View>
           <MoneyText
             amount={statistics.expense}
             currency="PEN"
@@ -71,7 +80,7 @@ export default function EstadisticasScreen() {
         </Card>
       </View>
 
-      <Card style={{ marginTop: spacing.md }}>
+      <Card style={{ marginTop: spacing.md, backgroundColor: colors.surfaceContainerLow }}>
         <View style={styles.itemRow}>
           <View>
             <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
@@ -86,47 +95,85 @@ export default function EstadisticasScreen() {
       </Card>
 
       <Card style={{ marginTop: spacing.md }}>
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
-          Gastos por categoría
-        </Text>
+        <View style={styles.sectionHeader}>
+          <View style={styles.itemInfo}>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
+              Gastos por categoría
+            </Text>
+            <Text style={[styles.meta, { color: colors.textSecondary }]}>Reparto del periodo seleccionado</Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Gestionar categorías"
+            onPress={() => router.push("/(modals)/categorias")}
+            style={({ pressed }) => [
+              styles.manageButton,
+              { backgroundColor: colors.surfaceContainerLow, opacity: pressed ? 0.82 : 1 },
+            ]}
+          >
+            <Ionicons name="pricetags-outline" size={18} color={colors.primary} />
+          </Pressable>
+        </View>
         {statistics.categoryTotals.length === 0 ? (
           <EmptyState
             icon="pie-chart-outline"
             title="Sin gastos en este periodo"
             description="Cuando registres gastos, verás aquí el reparto por categoría."
+            actionLabel="Gestionar categorías"
+            onAction={() => router.push("/(modals)/categorias")}
           />
         ) : (
           <>
-            <View style={styles.donutWrap}>
-              <View style={[styles.donut, { borderColor: colors.background }]}>
-                {statistics.categoryTotals.slice(0, 4).map((category, index) => (
-                  <View
-                    key={category.categoryId}
-                    style={[
-                      styles.donutSlice,
-                      {
-                        backgroundColor: category.color,
-                        opacity: 0.42 + index * 0.16,
-                        transform: [{ rotate: `${index * 42}deg` }],
-                      },
-                    ]}
-                  />
-                ))}
-                <View style={[styles.donutCenter, { backgroundColor: colors.surface }]}>
-                  <Text style={[styles.donutText, { color: colors.textPrimary }]}>
-                    {statistics.categoryTotals[0]?.percent || 0}%
-                  </Text>
-                </View>
+            <View style={[styles.categorySummary, { backgroundColor: colors.surfaceContainerLow }]}>
+              <View>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Principal</Text>
+                <Text style={[styles.summaryName, { color: colors.textPrimary }]}>
+                  {statistics.categoryTotals[0]?.name}
+                </Text>
               </View>
+              <Text style={[styles.summaryPercent, { color: colors.primary }]}>
+                {statistics.categoryTotals[0]?.percent || 0}%
+              </Text>
+            </View>
+            <View style={[styles.distributionTrack, { backgroundColor: colors.surfaceContainerHigh }]}>
+              {statistics.categoryTotals.slice(0, 5).map((category) => (
+                <View
+                  key={category.categoryId}
+                  style={[
+                    styles.distributionSegment,
+                    {
+                      backgroundColor: category.color || colors.gold,
+                      flexGrow: Math.max(Number(category.percent || 0), 3),
+                    },
+                  ]}
+                />
+              ))}
             </View>
             {statistics.categoryTotals.map((category) => (
               <View key={category.categoryId} style={[styles.categoryRow, { backgroundColor: colors.surfaceContainerLow }]}>
-                <View style={[styles.categoryDot, { backgroundColor: category.color }]} />
-                <View style={styles.itemInfo}>
-                  <Text style={[styles.name, { color: colors.textPrimary }]}>{category.name}</Text>
-                  <Text style={[styles.meta, { color: colors.textSecondary }]}>{category.percent}% del gasto</Text>
+                <View style={styles.categoryTopLine}>
+                  <View style={styles.categoryNameWrap}>
+                    <View style={[styles.categoryIcon, { backgroundColor: category.color || colors.gold }]}>
+                      <Ionicons name={getCategoryIconName(category.icon)} size={18} color={colors.surface} />
+                    </View>
+                    <View style={styles.itemInfo}>
+                      <Text style={[styles.name, { color: colors.textPrimary }]}>{category.name}</Text>
+                      <Text style={[styles.meta, { color: colors.textSecondary }]}>{category.percent}% del gasto</Text>
+                    </View>
+                  </View>
+                  <MoneyText amount={category.amount} currency="PEN" tone="negative" />
                 </View>
-                <MoneyText amount={category.amount} currency="PEN" tone="negative" />
+                <View style={[styles.progressTrack, { backgroundColor: colors.surface }]}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      {
+                        backgroundColor: category.color || colors.gold,
+                        width: `${Math.max(2, Math.min(Number(category.percent || 0), 100))}%`,
+                      },
+                    ]}
+                  />
+                </View>
               </View>
             ))}
           </>
@@ -134,19 +181,27 @@ export default function EstadisticasScreen() {
       </Card>
 
       <Card style={{ marginTop: spacing.md }}>
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
-          Barras semanales
-        </Text>
+        <View style={styles.sectionHeader}>
+          <View style={styles.itemInfo}>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontSize: typography.sizes.lg }]}>
+              Barras semanales
+            </Text>
+            <Text style={[styles.meta, { color: colors.textSecondary }]}>Gastos registrados por día</Text>
+          </View>
+          <View style={[styles.manageButton, { backgroundColor: colors.goldSoft }]}>
+            <Ionicons name="bar-chart-outline" size={18} color={colors.gold} />
+          </View>
+        </View>
         <View style={styles.barChart}>
           {statistics.weeklyBars.map((bar) => (
             <View key={bar.label} style={styles.barItem}>
-              <View style={[styles.barTrack, { backgroundColor: colors.background }]}>
+              <View style={[styles.barTrack, { backgroundColor: colors.surfaceContainerLow }]}>
                 <View
                   style={[
                     styles.barFill,
                     {
                       backgroundColor: colors.gold,
-                      height: `${Math.max(8, (Number(bar.amountMinor || 0) / maxWeeklyAmount) * 100)}%`,
+                      height: `${Number(bar.amountMinor || 0) > 0 ? Math.max(12, (Number(bar.amountMinor || 0) / maxWeeklyAmount) * 100) : 6}%`,
                     },
                   ]}
                 />
@@ -192,49 +247,48 @@ const styles = StyleSheet.create({
     position: "relative",
     width: "100%",
   },
-  categoryDot: {
-    borderRadius: 6,
-    height: 12,
-    width: 12,
+  categoryIcon: {
+    alignItems: "center",
+    borderRadius: 14,
+    height: 34,
+    justifyContent: "center",
+    width: 34,
+  },
+  categoryNameWrap: {
+    alignItems: "center",
+    flex: 1,
+    flexDirection: "row",
+    gap: 10,
   },
   categoryRow: {
+    borderRadius: 18,
+    marginTop: 12,
+    padding: 12,
+  },
+  categorySummary: {
     alignItems: "center",
     borderRadius: 18,
     flexDirection: "row",
-    gap: 10,
-    padding: 12,
+    justifyContent: "space-between",
+    marginTop: 14,
+    padding: 14,
+  },
+  categoryTopLine: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 12,
+  },
+  distributionSegment: {
+    flexBasis: 0,
+    minWidth: 6,
+  },
+  distributionTrack: {
+    borderRadius: 999,
+    flexDirection: "row",
+    gap: 3,
+    height: 14,
     marginTop: 12,
-  },
-  donut: {
-    alignItems: "center",
-    borderRadius: 70,
-    borderWidth: 12,
-    height: 140,
-    justifyContent: "center",
     overflow: "hidden",
-    position: "relative",
-    width: 140,
-  },
-  donutCenter: {
-    alignItems: "center",
-    borderRadius: 42,
-    height: 84,
-    justifyContent: "center",
-    width: 84,
-    zIndex: 2,
-  },
-  donutSlice: {
-    height: 90,
-    position: "absolute",
-    width: 150,
-  },
-  donutText: {
-    fontSize: 18,
-    fontWeight: "900",
-  },
-  donutWrap: {
-    alignItems: "center",
-    marginVertical: 12,
   },
   error: {
     fontWeight: "700",
@@ -258,15 +312,56 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: 4,
   },
+  manageButton: {
+    alignItems: "center",
+    borderRadius: 16,
+    height: 42,
+    justifyContent: "center",
+    width: 42,
+  },
   name: {
     fontSize: 14,
-    fontWeight: "800",
+    fontWeight: "900",
+  },
+  progressFill: {
+    borderRadius: 999,
+    height: "100%",
+  },
+  progressTrack: {
+    borderRadius: 999,
+    height: 7,
+    marginTop: 10,
+    overflow: "hidden",
+  },
+  sectionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 12,
   },
   sectionTitle: {
     fontWeight: "800",
   },
+  summaryLabel: {
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase",
+  },
+  summaryName: {
+    fontSize: 16,
+    fontWeight: "900",
+    marginTop: 2,
+  },
+  summaryPercent: {
+    fontSize: 28,
+    fontWeight: "900",
+  },
   statCard: {
     flex: 1,
+  },
+  statHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
   },
   statLabel: {
     fontSize: 12,

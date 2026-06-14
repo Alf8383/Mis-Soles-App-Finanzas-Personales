@@ -88,6 +88,7 @@ export async function createScheduledPayment(uid, values) {
 export async function markScheduledPaymentAsPaid(uid, scheduledPaymentId, values = {}) {
   assertUid(uid);
 
+  // Marcar como pagado crea un movimiento real y mueve el proximo vencimiento.
   return runTransaction(db, async (transaction) => {
     const paymentRef = getUserScheduledPayment(uid, scheduledPaymentId);
     const paymentSnapshot = await transaction.get(paymentRef);
