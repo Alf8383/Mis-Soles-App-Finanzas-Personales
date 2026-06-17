@@ -9,6 +9,10 @@ import { listMovements } from "./movements-repository";
 
 function getMovementDate(value) {
   if (value?.toDate) return value.toDate();
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
   return new Date(value);
 }
 
@@ -80,15 +84,18 @@ function getCategoryTotals(movements, categories, totalExpenseMinor) {
 
 function getWeeklyBars(movements) {
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const oneDayMs = 24 * 60 * 60 * 1000;
 
   return Array.from({ length: 7 }).map((_, index) => {
     const date = addDays(weekStart, index);
-    const dayKey = format(date, "yyyy-MM-dd");
+    const dayStart = date.getTime();
+    const dayEnd = dayStart + oneDayMs;
     const expenseMinor = movements
       .filter((movement) => {
-        const movementDate = getMovementDate(movement.date);
+        const movementMillis = getMovementDate(movement.date).getTime();
         return (
-          format(movementDate, "yyyy-MM-dd") === dayKey &&
+          movementMillis >= dayStart &&
+          movementMillis < dayEnd &&
           (movement.type === MovementType.EXPENSE || movement.type === MovementType.FEE)
         );
       })

@@ -15,11 +15,24 @@ const PERIODS = [
   { label: "Mes anterior", value: "previous_month" },
 ];
 
+const WEEKDAY_LABELS = ["LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM"];
+
+function getTodayWeekIndex() {
+  const day = new Date().getDay();
+  return day === 0 ? 6 : day - 1;
+}
+
+function formatCompactAmount(amountMinor) {
+  const amount = Math.round(Number(amountMinor || 0) / 100);
+  return amount > 0 ? `S/${amount}` : "";
+}
+
 export default function EstadisticasScreen() {
   const { colors, spacing, typography } = useAppTheme();
   const user = useAuthFlowStore((state) => state.user);
   const statistics = useStatisticsStore();
   const [period, setPeriod] = useState("this_month");
+  const todayWeekIndex = useMemo(getTodayWeekIndex, []);
   const maxWeeklyAmount = useMemo(
     () => Math.max(...statistics.weeklyBars.map((bar) => Number(bar.amountMinor || 0)), 1),
     [statistics.weeklyBars],
@@ -192,23 +205,49 @@ export default function EstadisticasScreen() {
             <Ionicons name="bar-chart-outline" size={18} color={colors.gold} />
           </View>
         </View>
-        <View style={styles.barChart}>
-          {statistics.weeklyBars.map((bar) => (
-            <View key={bar.label} style={styles.barItem}>
-              <View style={[styles.barTrack, { backgroundColor: colors.surfaceContainerLow }]}>
+        <View style={[styles.barChart, { backgroundColor: colors.surfaceContainerLowest }]}>
+          {statistics.weeklyBars.map((bar, index) => {
+            const amountMinor = Number(bar.amountMinor || 0);
+            const isToday = index === todayWeekIndex;
+            const barHeight = amountMinor > 0 ? Math.max(18, (amountMinor / maxWeeklyAmount) * 100) : 0;
+
+            return (
+              <View key={`${bar.label}-${index}`} style={styles.barItem}>
+                <Text
+                  numberOfLines={1}
+                  style={[styles.barValue, { color: amountMinor > 0 ? colors.textPrimary : colors.textTertiary }]}
+                >
+                  {formatCompactAmount(amountMinor)}
+                </Text>
                 <View
                   style={[
-                    styles.barFill,
+                    styles.barTrack,
                     {
-                      backgroundColor: colors.gold,
-                      height: `${Number(bar.amountMinor || 0) > 0 ? Math.max(12, (Number(bar.amountMinor || 0) / maxWeeklyAmount) * 100) : 6}%`,
+                      backgroundColor: isToday ? colors.goldSoft : colors.surfaceContainerLow,
                     },
                   ]}
-                />
+                >
+                  {amountMinor > 0 ? (
+                    <View
+                      style={[
+                        styles.barFill,
+                        {
+                          backgroundColor: isToday ? colors.primary : colors.gold,
+                          height: `${barHeight}%`,
+                        },
+                      ]}
+                    />
+                  ) : (
+                    <View style={[styles.barZeroMark, { backgroundColor: colors.surfaceContainerHigh }]} />
+                  )}
+                </View>
+                <Text style={[styles.barLabel, { color: isToday ? colors.primary : colors.textSecondary }]}>
+                  {WEEKDAY_LABELS[index] || bar.label}
+                </Text>
+                <View style={[styles.todayIndicator, { backgroundColor: isToday ? colors.primary : "transparent" }]} />
               </View>
-              <Text style={[styles.barLabel, { color: colors.textSecondary }]}>{bar.label}</Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
       </Card>
     </Screen>
@@ -217,11 +256,14 @@ export default function EstadisticasScreen() {
 
 const styles = StyleSheet.create({
   barChart: {
-    alignItems: "flex-end",
+    alignItems: "stretch",
+    borderRadius: 18,
     flexDirection: "row",
     gap: 8,
-    height: 150,
-    marginTop: 12,
+    height: 174,
+    marginTop: 14,
+    paddingHorizontal: 10,
+    paddingTop: 12,
   },
   barFill: {
     borderRadius: 999,
@@ -233,19 +275,43 @@ const styles = StyleSheet.create({
   barItem: {
     alignItems: "center",
     flex: 1,
-    gap: 8,
+    gap: 6,
+    height: "100%",
+    justifyContent: "flex-end",
   },
   barLabel: {
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "900",
+    letterSpacing: 0.2,
     textTransform: "uppercase",
   },
   barTrack: {
     borderRadius: 999,
-    flex: 1,
+    height: 104,
     overflow: "hidden",
     position: "relative",
-    width: "100%",
+    width: 18,
+  },
+  barValue: {
+    fontSize: 10,
+    fontWeight: "900",
+    minHeight: 13,
+    textAlign: "center",
+    width: 42,
+  },
+  barZeroMark: {
+    borderRadius: 999,
+    bottom: 0,
+    height: 5,
+    left: 4,
+    position: "absolute",
+    right: 4,
+  },
+  todayIndicator: {
+    borderRadius: 999,
+    height: 4,
+    marginTop: -2,
+    width: 14,
   },
   categoryIcon: {
     alignItems: "center",
